@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosquito Mike Package Calculator</title>
+    <link rel="icon" type="image/png" href="MM_Calculator_Icon-9.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Mosquito Mike Logo" class="header-logo">
+            <h1>Mosquito Mike Package Calculator</h1>
+            <p>Smart Package Recommendations Based on Customer Needs</p>
+        </div>
+
+        <div class="content">
+            <!-- Page 1: Questions -->
+            <div id="page1" class="page active">
+                <button class="btn btn-premier" onclick="openPremier()">
+                    <span class="btn-premier-title">&#11088; Premier Subscription</span>
+                    <span class="btn-premier-sub">October Only &middot; Existing Clients</span>
+                </button>
+
+                <div class="input-group">
+                    <label for="acreage">Treatment Area (in acres):</label>
+                    <input type="number" id="acreage" step="0.01" min="0.01" placeholder="Enter acreage (e.g., 0.75)">
+                    <div id="tierDisplay" class="tier-display"></div>
+                    <button id="btnViewPricing" class="btn btn-view-pricing" onclick="viewAllPricing()" style="display: none;">View All Pricing</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Are you looking for protection for mosquitoes, ticks, or both?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="pest-mosquitoes" name="pest_concern" value="mosquitoes">
+                            <label for="pest-mosquitoes">Mosquitoes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="pest-ticks" name="pest_concern" value="ticks">
+                            <label for="pest-ticks">Ticks</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="pest-both" name="pest_concern" value="both">
+                            <label for="pest-both">Both</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>And do you have any issues with other pests such as ants or rodents in or around the home?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="other-pests-yes" name="other_pests" value="yes">
+                            <label for="other-pests-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="other-pests-no" name="other_pests" value="no">
+                            <label for="other-pests-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you have wetlands or standing water on or near your property?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="water-yes" name="standing_water" value="yes">
+                            <label for="water-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="water-no" name="standing_water" value="no">
+                            <label for="water-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you have any kids or pets that you're also getting the service for?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="kids-yes" name="kids_pets" value="yes">
+                            <label for="kids-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="kids-no" name="kids_pets" value="no">
+                            <label for="kids-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you use your yard in the summer, or spring through fall?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="yard-summer" name="yard_use" value="summer">
+                            <label for="yard-summer">Summer</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="yard-spring-fall" name="yard_use" value="spring_fall">
+                            <label for="yard-spring-fall">Spring Through Fall</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Okay great, one last question. Do you usually prefer to pay as you go, prepay and save, or budget and spread payments over 12 months?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="payment-paygo" name="payment_preference" value="pay_go">
+                            <label for="payment-paygo">Pay As You Go</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="payment-prepay" name="payment_preference" value="prepay">
+                            <label for="payment-prepay">Prepay and Save</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="payment-budget" name="payment_preference" value="budget">
+                            <label for="payment-budget">Budget Over 12 Months</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculatePackages()">Get Package Recommendations</button>
+                </div>
+            </div>
+
+            <!-- Page 2: Results -->
+            <div id="page2" class="page">
+
+                <div id="recommendedPackages"></div>
+
+                <div id="allPackages" class="all-packages"></div>
+
+                <div id="outcomeButtons" class="outcome-buttons">
+                    <button class="btn btn-sold" onclick="goToAddons()">Sold (Move to Add-Ons)</button>
+                    <button class="btn btn-not-sold" onclick="goToEmail()">Not Sold (Generate Email)</button>
+                </div>
+            </div>
+
+            <!-- Page 3: Add-Ons Pitch -->
+            <div id="page3" class="page">
+                <div class="addons-container">
+                    <h2>Add-On Pitch: Ants &amp; Rodents</h2>
+                    <div id="addonsPitch" class="addons-pitch"></div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="backToResults()">Back to Packages</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 4: Email Generator -->
+            <div id="page4" class="page">
+                <div class="email-container">
+                    <h2>Generate Follow-Up Email</h2>
+
+                    <div class="email-names">
+                        <div class="input-group">
+                            <label for="clientName">Client First Name <span class="required">*</span></label>
+                            <input type="text" id="clientName" placeholder="e.g., John" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="repName">Your First Name <span class="required">*</span></label>
+                            <input type="text" id="repName" placeholder="e.g., Sarah" required>
+                        </div>
+                    </div>
+
+                    <h3 class="plans-header">Select up to 2 plans to include</h3>
+                    <p class="plans-sub">Prices are pre-filled based on the property tier. Edit any to override.</p>
+                    <div id="planCheckboxes" class="plan-checkboxes"></div>
+
+                    <div class="email-options">
+                        <label class="option-check">
+                            <input type="checkbox" id="waiveNatural">
+                            <span>Waive All-Natural upcharge (+$5/visit)</span>
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="generateEmail()">Generate Email</button>
+                        <button class="btn btn-secondary" onclick="backToResults()">Back to Packages</button>
+                    </div>
+
+                    <div id="generatedEmail" class="generated-email" style="display: none;">
+                        <h4>Preview (formatting will be preserved when pasted into Gmail)</h4>
+                        <div id="emailContent" class="email-preview"></div>
+                        <button class="btn-copy" onclick="copyEmailHTML()">Copy to Gmail</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 5: Premier — Eligibility Check -->
+            <div id="page5" class="page">
+                <div class="premier-hero">
+                    <img src="logo.png" alt="Mosquito Mike Logo" class="premier-hero-logo">
+                    <div class="premier-hero-title">&#11088; Premier Subscription</div>
+                    <span class="premier-badge">October 2026 Only</span>
+                    <p>For existing clients. Billing starts Nov 1st, 2026 &middot; covers the 2027 season &middot; price locked until Nov 1st, 2028.</p>
+                </div>
+
+                <h2 class="premier-step">Step 1: Eligibility Check</h2>
+
+                <div class="input-group">
+                    <label for="premierAcreage">Treatment Area (in acres):</label>
+                    <input type="number" id="premierAcreage" step="0.01" min="0.01" placeholder="Enter acreage (e.g., 0.75)" oninput="updatePremierTier()">
+                    <div id="premierTierDisplay" class="tier-display"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="premierRate">2026 Bi-Weekly Per-Treatment Rate ($):</label>
+                    <p class="input-hint">Enter the client&rsquo;s 2026 <strong>bi-weekly rate only</strong>, regardless of the program they had. Premier is always priced off the bi-weekly rate, even if they were on a Triweekly plan.</p>
+                    <input type="number" id="premierRate" step="0.01" min="0.01" placeholder="Bi-weekly rate per treatment (e.g., 109)">
+                </div>
+
+                <div id="premierEligibilityResult"></div>
+
+                <div id="premierCheckButtons" class="button-group">
+                    <button class="btn btn-secondary" onclick="exitPremier()">Back</button>
+                    <button class="btn btn-premier-action" onclick="runPremierEligibilityCheck()">Check Eligibility</button>
+                </div>
+                <div id="premierResetButtons" class="button-group" style="display: none;">
+                    <button class="btn btn-primary" onclick="resetPremier()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Page 6: Premier — Pricing & Add-Ons -->
+            <div id="page6" class="page">
+                <h2 class="premier-step">Step 2: Premier Pricing</h2>
+
+                <div id="premierEligibleBanner"></div>
+                <div id="premierPackage"></div>
+
+                <h3 class="premier-section-title">Bundle an Add-On (optional)</h3>
+                <div id="premierAddonCards" class="addon-cards"></div>
+
+                <div class="input-group premier-addon-select">
+                    <label>Include an add-on with Premier?</label>
+                    <div id="premierAddonOptions" class="radio-group"></div>
+                    <div id="premierAddonTotal" class="tier-display"></div>
+                </div>
+
+                <div class="outcome-buttons">
+                    <button class="btn btn-sold" onclick="goToPremierSold()">Sold (Generate CRM Note)</button>
+                    <button class="btn btn-not-sold" onclick="goToPremierEmail()">Not Sold (Generate Email)</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="backToPremierEligibility()">Back</button>
+                    <button class="btn btn-primary" onclick="resetPremier()">New Calc</button>
+                </div>
+            </div>
+
+            <!-- Page 7: Premier — Sold (CRM Note) -->
+            <div id="page7" class="page">
+                <div class="addons-container">
+                    <h2>Premier Sold: CRM Note</h2>
+
+                    <div class="input-group">
+                        <label>Add-on included:</label>
+                        <div id="premierSoldAddonOptions" class="radio-group"></div>
+                    </div>
+
+                    <div class="copy-section">
+                        <h4>Title</h4>
+                        <div id="premierCrmTitle" class="copy-text"></div>
+                        <button class="btn-copy" onclick="copyPremierText('premierCrmTitle', this)">Copy Title</button>
+                    </div>
+
+                    <div class="copy-section">
+                        <h4>Note</h4>
+                        <div id="premierCrmNote" class="copy-text"></div>
+                        <label for="premierCrmExtra" class="premier-extra-label">Add to note (optional)</label>
+                        <textarea id="premierCrmExtra" class="premier-extra" rows="2" placeholder="e.g., Prefers texts for scheduling" oninput="updatePremierCrmNote()"></textarea>
+                        <button class="btn-copy" onclick="copyPremierText('premierCrmNote', this)">Copy Note</button>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="backToPremierResults()">Back</button>
+                        <button class="btn btn-primary" onclick="resetPremier()">New Calc</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 8: Premier — Not Sold (Follow-Up Email) -->
+            <div id="page8" class="page">
+                <div class="email-container">
+                    <h2>Premier Not Sold: Follow-Up Email</h2>
+
+                    <div class="email-names">
+                        <div class="input-group">
+                            <label for="premierClientName">Client First Name <span class="required">*</span></label>
+                            <input type="text" id="premierClientName" placeholder="e.g., John" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="premierRepName">Your First Name <span class="required">*</span></label>
+                            <input type="text" id="premierRepName" placeholder="e.g., Sarah" required>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="generatePremierEmail()">Generate Email</button>
+                    </div>
+
+                    <div id="premierGeneratedEmail" class="generated-email" style="display: none;">
+                        <h4>Preview (formatting will be preserved when pasted into Gmail)</h4>
+                        <div id="premierEmailContent" class="email-preview"></div>
+                        <button class="btn-copy" onclick="copyEmailHTML('premierEmailContent', 'premierGeneratedEmail')">Copy to Gmail</button>
+                    </div>
+
+                    <h3 class="premier-section-title">CRM Note</h3>
+
+                    <div class="input-group premier-crm-addon">
+                        <label>Add-on pitched:</label>
+                        <div id="premierPitchedAddonOptions" class="radio-group"></div>
+                    </div>
+
+                    <div class="copy-section">
+                        <h4>Title</h4>
+                        <div id="premierPitchedTitle" class="copy-text"></div>
+                        <button class="btn-copy" onclick="copyPremierText('premierPitchedTitle', this)">Copy Title</button>
+                    </div>
+
+                    <div class="copy-section">
+                        <h4>Note</h4>
+                        <div id="premierPitchedNote" class="copy-text"></div>
+                        <label for="premierPitchedExtra" class="premier-extra-label">Add to note (optional)</label>
+                        <textarea id="premierPitchedExtra" class="premier-extra" rows="2" placeholder="e.g., Talking it over with spouse, call back Oct 15" oninput="updatePremierPitchedNote()"></textarea>
+                        <button class="btn-copy" onclick="copyPremierText('premierPitchedNote', this)">Copy Note</button>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="backToPremierResults()">Back</button>
+                        <button class="btn btn-primary" onclick="resetPremier()">New Calc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed pricing toggle - outside container so it truly stays fixed -->
+    <div class="pricing-toggle-container">
+        <!-- Row 1: Action buttons -->
+        <div>
+            <button id="btnShowAll" class="btn btn-secondary btn-view-all" onclick="showAllPackages()">All Packages</button>
+            <button id="btnHideAll" class="btn btn-secondary" onclick="hideAllPackages()" style="display: none;">Hide Packages</button>
+            <button class="btn btn-primary" onclick="resetCalculator()">New Calc</button>
+        </div>
+        <!-- Row 2: Toggle -->
+        <div>
+            <span id="toggleLabel" style="font-weight: 600; color: #4a5568; font-size: 0.75rem;">Traditional</span>
+            <label class="pricing-toggle">
+                <input type="checkbox" id="pricingToggle" onchange="togglePricingMode()">
+                <span class="toggle-slider"></span>
+            </label>
+            <span style="font-weight: 600; color: #48bb78; font-size: 0.75rem;">All Natural</span>
+        </div>
+    </div>
+
+    <!-- Configuration and Pricing Data -->
+    <script src="config.js"></script>
+    <!-- Calculator Logic -->
+    <script src="calculator.js"></script>
+    <!-- Premier Subscription flow (pages 5–8) -->
+    <script src="premier.js"></script>
+</body>
+</html>
