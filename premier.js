@@ -152,6 +152,9 @@ function calculatePremierPricing(rate) {
 
     return {
         discounted: Math.round(rateCents * keptPct / 100) / 100, // rounded to 2 decimals for display
+        // Steps shown in the Math Breakdown (rounded to cents for display): discounted × apps, then ÷ months
+        seasonTotal: Math.round(rateCents * keptPct * apps / 100) / 100,
+        monthlyExact: Math.round(rateCents * keptPct * apps / (100 * months)) / 100,
         monthly,
         standardPif14,
         premierTotal,
@@ -462,6 +465,29 @@ function renderPremierResults() {
                             <p>${o.a}</p>
                         </div>
                     `).join('')}
+                </div>
+            </div>
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Math Breakdown</h4>
+                <div class="tp-content collapsed">
+                    <div class="premier-breakdown">
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.rate)} × ${1 - PREMIER_CONFIG.discount_rate}<small>5% off each application</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.discounted)}/app</span>
+                        </div>
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.discounted)} × ${PREMIER_CONFIG.applications_per_season}<small>${PREMIER_CONFIG.applications_per_season} applications per season</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.seasonTotal)}</span>
+                        </div>
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.seasonTotal)} ÷ ${PREMIER_CONFIG.payment_months}<small>${PREMIER_CONFIG.payment_months} monthly payments</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.monthlyExact)}</span>
+                        </div>
+                        <div class="premier-line">
+                            <span><strong>Rounded up to the next dollar</strong></span>
+                            <span class="premier-line-amount premier-monthly-amount">${formatPremierMoney(s.monthly)}/mo</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

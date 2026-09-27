@@ -1642,7 +1642,7 @@ body.premier-mode ::-webkit-scrollbar-thumb,
 }
 
 /* Monthly payment — gold gradient text, same gold as the Premier buttons */
-.pricing-amount.premier-monthly-amount {
+.premier-monthly-amount {
     background: linear-gradient(180deg, #fbeaa0 0%, #e6c55a 45%, #b8860b 100%);
     -webkit-background-clip: text;
     background-clip: text;
