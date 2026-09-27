@@ -35,7 +35,7 @@ function buildPremierValuePoints(s) {
             title: 'Locked rate for two full years',
             star: true,
             paragraphs: [
-                `Every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
+                `Nearly every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
                 `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is locked until Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
                 `Even a ${formatPremierMoney(exampleIncrease)} increase per application would add <strong>${formatPremierMoney(exampleIncrease * apps)} over a ${apps}-application season</strong>. Premier protects you from that for two full years.`
             ]
