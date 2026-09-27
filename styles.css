@@ -1714,6 +1714,18 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     margin-top: 10px;
 }
 
+/* Sold page: reminder to post the sale in Discord */
+.premier-reminder {
+    margin: -8px 0 20px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.06) 100%);
+    border: 1px solid #d4af37;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    color: #f7e08a;
+    line-height: 1.4;
+}
+
 .premier-crm-addon {
     margin-top: 12px;
     margin-bottom: 0;
