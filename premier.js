@@ -13,6 +13,11 @@ const PREMIER_KEY_POINTS = [
     '<strong>No contract or cancellation fee</strong>'
 ];
 
+// Script the rep reads, filled in with the client's numbers — same format as the other packages' pitches
+function buildPremierPitch(s) {
+    return `Because you’re already one of our clients, you qualify for our Premier Subscription, which we’re only offering through the end of October. It covers the full season, April through October, with up to ${PREMIER_CONFIG.applications_per_season} applications starting in 2027. You get 5% off every application, so your rate drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)} per application</strong>. You don’t pay at each visit or get a big bill in the spring. The cost is split into ${PREMIER_CONFIG.payment_months} low monthly payments of <strong>${formatPremierMoney(s.monthly)} per month</strong>, starting ${PREMIER_CONFIG.billing_start}. Your rate is also <strong>locked for two full years</strong>, so you won’t see any increases, and there’s no contract or cancellation fee. Compared to paying for all ${PREMIER_CONFIG.applications_per_season} applications at your current rate, that saves you <strong>${formatPremierMoney(s.savings)} per season</strong>. Would you like me to get you set up?`;
+}
+
 const PREMIER_OBJECTIONS = [
     {
         q: 'I don’t like paying all year.',
@@ -334,6 +339,7 @@ function renderPremierResults() {
             <div class="talking-points">
                 <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Why Premier?</h4>
                 <div class="tp-content collapsed">
+                    <div class="tp-pitch">${buildPremierPitch(s)}</div>
                     <div class="tp-section">
                         <div class="tp-section-title">Key Points to Present</div>
                         <ul>${PREMIER_KEY_POINTS.map(p => `<li>${p}</li>`).join('')}</ul>
