@@ -1,5 +1,5 @@
 // ---- Premier Subscription (October 2026 promo) ----
-// Separate flow: page5 (eligibility) → page6 (pricing + add-ons) → page7 (Sold: CRM note) / page8 (Not Sold: email)
+// Separate flow: page5 (eligibility) → page6 (pricing + add-ons) → page7 (Sold: CRM note) / page8 (Pitched: email)
 
 let premierState = null; // Set once eligibility passes: { acres, tier, tierRate, rate, discounted, monthly, standardPif14, premierTotal, savings }
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
@@ -551,7 +551,7 @@ async function copyPremierText(sourceId, btn) {
     }, 2500);
 }
 
-// ---- Page 8: Not Sold (follow-up email + pitched CRM note) ----
+// ---- Page 8: Pitched (follow-up email + pitched CRM note) ----
 
 function generatePremierEmail() {
     const clientNameEl = document.getElementById('premierClientName');
