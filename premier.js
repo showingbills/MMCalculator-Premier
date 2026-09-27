@@ -26,14 +26,14 @@ function buildPremierPitch(s) {
 }
 
 // Value-building talk track, one entry per benefit. The price lock leads — it's the main value
-// (primary: true gets the gold callout). Filled in with the client's numbers like the pitch.
+// (star: true, same as the key point). Filled in with the client's numbers like the pitch.
 function buildPremierValuePoints(s) {
     const apps = PREMIER_CONFIG.applications_per_season;
     const exampleIncrease = 5; // $ per application, for the "what an increase costs you" example
     return [
         {
             title: 'Locked rate for two full years',
-            primary: true,
+            star: true,
             paragraphs: [
                 `Every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
                 `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is locked until Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
@@ -406,8 +406,8 @@ function renderPremierResults() {
                 <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Value Building</h4>
                 <div class="tp-content collapsed">
                     ${buildPremierValuePoints(s).map(v => `
-                        <div class="premier-value${v.primary ? ' primary' : ''}">
-                            <div class="premier-value-title">${v.primary ? '⭐ ' : ''}${v.title}</div>
+                        <div class="premier-value">
+                            <div class="premier-value-title">${v.star ? '⭐ ' : ''}${v.title}</div>
                             ${v.paragraphs.map(p => `<p>${p}</p>`).join('')}
                         </div>
                     `).join('')}
