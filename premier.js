@@ -485,7 +485,7 @@ function renderPremierResults() {
                         </div>
                         <div class="premier-line">
                             <span><strong>Rounded up to the next dollar</strong></span>
-                            <span class="premier-line-amount">${formatPremierMoney(s.monthly)}/mo</span>
+                            <span class="premier-line-amount premier-monthly-amount">${formatPremierMoney(s.monthly)}/mo</span>
                         </div>
                     </div>
                 </div>
