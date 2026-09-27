@@ -21,7 +21,6 @@ function buildPremierPitch(s) {
         `You get 5% off every application, so your rate drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)} per application</strong>.`,
         `Instead of paying at each visit or getting a big bill in the spring, the cost is split into ${PREMIER_CONFIG.payment_months} low monthly payments of <strong>${formatPremierMoney(s.monthly)} per month</strong>, starting ${PREMIER_CONFIG.billing_start}.`,
         `Your rate is <strong>locked for two full years</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
-        `Compared to paying for all ${PREMIER_CONFIG.applications_per_season} applications at your current rate, that saves you <strong>${formatPremierMoney(s.savings)} per season</strong>.`,
         `<strong>Would you like me to get you set up?</strong>`
     ];
 }
