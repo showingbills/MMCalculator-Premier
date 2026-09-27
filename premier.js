@@ -356,7 +356,7 @@ function renderPremierResults() {
             <div class="pricing-row">
                 <div class="pricing-option">
                     <div class="pricing-label">Monthly Payment</div>
-                    <div class="pricing-amount">${formatPremierMoney(s.monthly)}/mo</div>
+                    <div class="pricing-amount premier-monthly-amount">${formatPremierMoney(s.monthly)}/mo</div>
                     <div class="premier-pricing-sub">Starting ${PREMIER_CONFIG.billing_start} · covers the 2027 season onward</div>
                 </div>
             </div>
