@@ -1453,7 +1453,7 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     display: none;
 }
 
-/* Eligibility pop-up: pass (green, auto-advances) or fail (red, Reset only) */
+/* Premier pop-ups: eligibility pass (green) / fail (red, Reset only), Sold (gold), Pitched (purple) */
 .premier-alert-overlay {
     position: fixed;
     inset: 0;
@@ -1483,6 +1483,14 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     border: 2px solid #ef4444;
 }
 
+.premier-alert.sold {
+    border: 2px solid #d4af37;
+}
+
+.premier-alert.pitched {
+    border: 2px solid var(--pm-purple);
+}
+
 .premier-alert-icon {
     width: 56px;
     height: 56px;
@@ -1505,6 +1513,14 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: #f87171;
 }
 
+.premier-alert.sold .premier-alert-icon {
+    background: rgba(212, 175, 55, 0.18);
+}
+
+.premier-alert.pitched .premier-alert-icon {
+    background: rgba(139, 92, 246, 0.18);
+}
+
 .premier-alert-title {
     font-size: 1.15rem;
     font-weight: 700;
@@ -1517,6 +1533,30 @@ body.premier-mode ::-webkit-scrollbar-thumb,
 
 .premier-alert.fail .premier-alert-title {
     color: #fca5a5;
+}
+
+.premier-alert.sold .premier-alert-title {
+    color: #f7e08a;
+}
+
+.premier-alert.pitched .premier-alert-title {
+    color: var(--pm-purple-light);
+}
+
+/* "+$10" on the Sold pop-up — same gold gradient as the monthly payment */
+.premier-alert-commission {
+    margin-top: 6px;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(180deg, #fbeaa0 0%, #e6c55a 45%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.premier-alert-commission + .premier-alert-note {
+    margin-top: 2px;
 }
 
 .premier-alert-note {

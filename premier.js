@@ -3,9 +3,12 @@
 
 let premierState = null; // Set once eligibility passes: { acres, tier, tierRate, rate, discounted, monthly, standardPif14, premierTotal, savings }
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
-let premierAdvanceTimer = null; // Pending move from the pass pop-up to page6
+let premierAdvanceTimer = null; // Pending move from a pop-up to the next page
 
-const PREMIER_PASS_ALERT_MS = 1500; // How long the pass pop-up shows before moving on to pricing
+// How long each pop-up shows before moving on to its page
+const PREMIER_PASS_ALERT_MS = 1500;
+const PREMIER_SOLD_ALERT_MS = 1000;
+const PREMIER_PITCHED_ALERT_MS = 2000; // Longer message, so it stays up longer
 
 // Bold = the benefit the rep should land on; the rest is supporting detail. star = headline point, gets a ⭐ instead of a check
 const PREMIER_KEY_POINTS = [
@@ -212,6 +215,24 @@ function backToPremierResults() {
     showPremierPage('page6');
 }
 
+// Sold/Pitched buttons on page6 show a pop-up first, then open their page
+function sellPremier() {
+    showPremierAlertThen('sold', `
+        <div class="premier-alert-icon">🎉</div>
+        <div class="premier-alert-title">Premier Sold!</div>
+        <div class="premier-alert-commission">+$${PREMIER_CONFIG.sale_commission}</div>
+        <p class="premier-alert-note">commission earned. Nice work!</p>
+    `, PREMIER_SOLD_ALERT_MS, goToPremierSold);
+}
+
+function pitchPremier() {
+    showPremierAlertThen('pitched', `
+        <div class="premier-alert-icon">💪</div>
+        <div class="premier-alert-title">Not a dead lead!</div>
+        <p class="premier-alert-note">Most clients just need time to think it over. Send the follow-up email and check back in throughout the month.</p>
+    `, PREMIER_PITCHED_ALERT_MS, goToPremierEmail);
+}
+
 function goToPremierSold() {
     renderPremierAddonOptions('premierSoldAddonOptions', 'premier_sold_addon');
     updatePremierCrmNote();
@@ -314,15 +335,11 @@ function runPremierEligibilityCheck() {
     premierAddon = 'none';
     renderPremierResults();
 
-    showPremierAlert('pass', `
+    showPremierAlertThen('pass', `
         <div class="premier-alert-icon">✔</div>
         <div class="premier-alert-title">Eligible for Premier</div>
         <p class="premier-alert-note">${buildPremierTierNote(premierState)}</p>
-    `);
-    premierAdvanceTimer = setTimeout(() => {
-        hidePremierAlert();
-        showPremierPage('page6');
-    }, PREMIER_PASS_ALERT_MS);
+    `, PREMIER_PASS_ALERT_MS, () => showPremierPage('page6'));
 }
 
 // "$89/app meets the current Up to 0.50 acre bi-weekly rate ($89)." — shown in the pass pop-up
@@ -337,6 +354,15 @@ function showPremierAlert(type, html) {
     card.className = `premier-alert ${type}`;
     card.innerHTML = html;
     document.getElementById('premierAlert').style.display = '';
+}
+
+// Show a pop-up for `ms`, then close it and run `next` (usually opening the next page)
+function showPremierAlertThen(type, html, ms, next) {
+    showPremierAlert(type, html);
+    premierAdvanceTimer = setTimeout(() => {
+        hidePremierAlert();
+        next();
+    }, ms);
 }
 
 function hidePremierAlert() {
