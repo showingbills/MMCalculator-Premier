@@ -652,42 +652,6 @@ body.showing-results #recommendedPackages {
     scroll-behavior: smooth;
 }
 
-/* Page transitions: each page fades and slides up (out of a slight blur) when it becomes active,
-   and its cards follow in a quick stagger. No fill-mode, so no transform lingers after the animation. */
-@keyframes page-in {
-    from {
-        opacity: 0;
-        transform: translateY(14px);
-        filter: blur(4px);
-    }
-}
-
-@keyframes card-in {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-}
-
-.page.active {
-    animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.page.active .package-card {
-    animation: card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-.page.active .package-card:nth-child(2) { animation-delay: 0.07s; }
-.page.active .package-card:nth-child(3) { animation-delay: 0.14s; }
-.page.active .package-card:nth-child(n+4) { animation-delay: 0.21s; }
-
-@media (prefers-reduced-motion: reduce) {
-    .page.active,
-    .page.active .package-card {
-        animation: none;
-    }
-}
-
 /* Hide header when on page 2 - CRITICAL FIX */
 body.showing-results .header {
     display: none !important;
