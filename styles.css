@@ -1647,6 +1647,27 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     border-left: 3px solid #d4af37;
 }
 
+/* Pitch script — gold rule like the objection answers, one short paragraph per point */
+.premier-pitch {
+    padding-left: 10px;
+    border-left: 3px solid #d4af37;
+}
+
+.premier-pitch p {
+    margin: 0 0 10px;
+    font-size: 0.84rem;
+    color: var(--pm-text-2);
+    line-height: 1.55;
+}
+
+.premier-pitch p:last-child {
+    margin-bottom: 4px;
+}
+
+.premier-pitch strong {
+    color: #f7e08a;
+}
+
 .premier-addon-select {
     margin-top: 16px;
 }
