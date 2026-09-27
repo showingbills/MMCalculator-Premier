@@ -1668,6 +1668,11 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: #f7e08a;
 }
 
+/* Headline key point: star in place of the check mark */
+.tp-content li.premier-star:before {
+    content: "\2B50";
+}
+
 .premier-addon-select {
     margin-top: 16px;
 }

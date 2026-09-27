@@ -4,13 +4,13 @@
 let premierState = null; // Set once eligibility passes: { acres, tier, tierRate, rate, discounted, monthly, standardPif14, premierTotal, savings }
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
 
-// Bold = the benefit the rep should land on; the rest is supporting detail
+// Bold = the benefit the rep should land on; the rest is supporting detail. star = headline point, gets a ⭐ instead of a check
 const PREMIER_KEY_POINTS = [
-    '<strong>Full-season protection</strong>, April through October (up to 14 applications)',
-    '<strong>5% discount</strong> on each application',
-    '<strong>Low monthly payments</strong> starting November 1st',
-    '<strong>Locked rate for two full years</strong> — no increases, no inflation worries',
-    '<strong>No contract or cancellation fee</strong>'
+    { text: '<strong>Full-season protection</strong>, April through October (up to 14 applications)' },
+    { text: '<strong>5% discount</strong> on each application' },
+    { text: '<strong>Low monthly payments</strong> starting November 1st' },
+    { text: '<strong>Locked rate for two full years</strong> — no increases, no inflation worries', star: true },
+    { text: '<strong>No contract or cancellation fee</strong>' }
 ];
 
 // Script the rep reads, filled in with the client's numbers — one paragraph per talking point
@@ -20,7 +20,7 @@ function buildPremierPitch(s) {
         `It covers the full season, April through October, with up to ${PREMIER_CONFIG.applications_per_season} applications starting in 2027.`,
         `You get 5% off every application, so your rate drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)} per application</strong>.`,
         `Instead of paying at each visit or getting a big bill in the spring, the cost is split into ${PREMIER_CONFIG.payment_months} low monthly payments of <strong>${formatPremierMoney(s.monthly)} per month</strong>, starting ${PREMIER_CONFIG.billing_start}.`,
-        `⭐ Your rate is <strong>locked for two full years</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
+        `Your rate is <strong>locked for two full years</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
         `Compared to paying for all ${PREMIER_CONFIG.applications_per_season} applications at your current rate, that saves you <strong>${formatPremierMoney(s.savings)} per season</strong>.`,
         `<strong>Would you like me to get you set up?</strong>`
     ];
@@ -357,7 +357,7 @@ function renderPremierResults() {
                 <div class="tp-content collapsed">
                     <div class="tp-section">
                         <div class="tp-section-title">Key Points to Present</div>
-                        <ul>${PREMIER_KEY_POINTS.map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul>${PREMIER_KEY_POINTS.map(p => `<li${p.star ? ' class="premier-star"' : ''}>${p.text}</li>`).join('')}</ul>
                     </div>
                 </div>
             </div>
