@@ -25,6 +25,48 @@ function buildPremierPitch(s) {
     ];
 }
 
+// Value-building talk track, one entry per benefit. The price lock leads — it's the main value
+// (primary: true gets the gold callout). Filled in with the client's numbers like the pitch.
+function buildPremierValuePoints(s) {
+    const apps = PREMIER_CONFIG.applications_per_season;
+    const exampleIncrease = 5; // $ per application, for the "what an increase costs you" example
+    return [
+        {
+            title: 'Locked rate for two full years',
+            primary: true,
+            paragraphs: [
+                `Every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
+                `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is locked until Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
+                `Even a ${formatPremierMoney(exampleIncrease)} increase per application would add <strong>${formatPremierMoney(exampleIncrease * apps)} over a ${apps}-application season</strong>. Premier protects you from that for two full years.`
+            ]
+        },
+        {
+            title: '5% discount on each application',
+            paragraphs: [
+                `On top of locking in your rate, we take 5% off it, so every application drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)}</strong>. That lower rate is the one we lock in, so you keep the discount for both seasons.`
+            ]
+        },
+        {
+            title: 'Low monthly payments',
+            paragraphs: [
+                `There’s no big bill in the spring and nothing to pay at each visit. It’s <strong>${formatPremierMoney(s.monthly)} a month</strong> starting ${PREMIER_CONFIG.billing_start}, the same amount every month, so it’s easy to budget for.`
+            ]
+        },
+        {
+            title: 'Full-season protection',
+            paragraphs: [
+                `You’re covered April through October with up to ${apps} applications. You’re protected from the first warm days of spring right through the fall, without having to think about scheduling or missing an application.`
+            ]
+        },
+        {
+            title: 'No contract or cancellation fee',
+            paragraphs: [
+                `You get all of this without being tied down. There’s no contract and no cancellation fee, so you stay in full control and there’s no risk in trying it.`
+            ]
+        }
+    ];
+}
+
 const PREMIER_OBJECTIONS = [
     {
         q: 'I don’t like paying all year.',
@@ -358,6 +400,17 @@ function renderPremierResults() {
                         <div class="tp-section-title">Key Points to Present</div>
                         <ul>${PREMIER_KEY_POINTS.map(p => `<li${p.star ? ' class="premier-star"' : ''}>${p.text}</li>`).join('')}</ul>
                     </div>
+                </div>
+            </div>
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Value Building</h4>
+                <div class="tp-content collapsed">
+                    ${buildPremierValuePoints(s).map(v => `
+                        <div class="premier-value${v.primary ? ' primary' : ''}">
+                            <div class="premier-value-title">${v.primary ? '⭐ ' : ''}${v.title}</div>
+                            ${v.paragraphs.map(p => `<p>${p}</p>`).join('')}
+                        </div>
+                    `).join('')}
                 </div>
             </div>
             <div class="talking-points">

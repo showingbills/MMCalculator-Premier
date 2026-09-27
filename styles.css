@@ -1668,6 +1668,44 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: #f7e08a;
 }
 
+/* Value building — same gold rule as the objection answers; the price lock gets a gold callout */
+.premier-value {
+    margin-bottom: 14px;
+}
+
+.premier-value.primary {
+    padding: 12px 12px 4px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.05) 100%);
+    border: 1px solid #d4af37;
+    border-radius: 10px;
+}
+
+.premier-value-title {
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: var(--pm-text);
+    margin-bottom: 4px;
+}
+
+.premier-value.primary .premier-value-title {
+    font-size: 0.95rem;
+    color: #f7e08a;
+    margin-bottom: 8px;
+}
+
+.premier-value p {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    color: var(--pm-text-2);
+    line-height: 1.5;
+    padding-left: 10px;
+    border-left: 3px solid #d4af37;
+}
+
+.premier-value strong {
+    color: #f7e08a;
+}
+
 /* Headline key point: star in place of the check mark */
 .tp-content li.premier-star:before {
     content: "\2B50";
