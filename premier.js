@@ -3,6 +3,9 @@
 
 let premierState = null; // Set once eligibility passes: { acres, tier, tierRate, rate, discounted, monthly, standardPif14, premierTotal, savings }
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
+let premierAdvanceTimer = null; // Pending move from the pass pop-up to page6
+
+const PREMIER_PASS_ALERT_MS = 1500; // How long the pass pop-up shows before moving on to pricing
 
 // Bold = the benefit the rep should land on; the rest is supporting detail. star = headline point, gets a ⭐ instead of a check
 const PREMIER_KEY_POINTS = [
@@ -237,16 +240,12 @@ function clearPremierState() {
     const rate = document.getElementById('premierRate');
     acreage.value = '';
     rate.value = '';
-    acreage.disabled = false;
-    rate.disabled = false;
 
     const tierDisplay = document.getElementById('premierTierDisplay');
     tierDisplay.innerHTML = '';
     tierDisplay.classList.remove('warning');
 
-    document.getElementById('premierEligibilityResult').innerHTML = '';
-    document.getElementById('premierCheckButtons').style.display = '';
-    document.getElementById('premierResetButtons').style.display = 'none';
+    hidePremierAlert();
 
     document.getElementById('premierPackage').innerHTML = '';
     document.getElementById('premierAddonCards').innerHTML = '';
@@ -301,41 +300,56 @@ function runPremierEligibilityCheck() {
     const result = checkPremierEligibility(acres, rate);
 
     if (!result.eligible) {
-        // Dead end: lock the inputs — the only way forward is a full Reset
-        acreageEl.disabled = true;
-        rateEl.disabled = true;
-        document.getElementById('premierCheckButtons').style.display = 'none';
-        document.getElementById('premierResetButtons').style.display = '';
-        document.getElementById('premierEligibilityResult').innerHTML = `
-            <div class="premier-status not-eligible">
-                <div class="premier-status-title">✖ Not Eligible for Premier</div>
-                <ul>${result.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
-                <div class="premier-status-note">Reset to start a new calculation.</div>
-            </div>
-        `;
+        // Dead end: the pop-up only offers Reset, which starts a fresh check
+        showPremierAlert('fail', `
+            <div class="premier-alert-icon">✖</div>
+            <div class="premier-alert-title">Not Eligible for Premier</div>
+            <ul class="premier-alert-reasons">${result.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+            <button class="btn btn-primary premier-alert-btn" onclick="resetPremier()">Reset</button>
+        `);
         return;
     }
 
     premierState = { ...result, ...calculatePremierPricing(rate) };
     premierAddon = 'none';
     renderPremierResults();
-    showPremierPage('page6');
+
+    showPremierAlert('pass', `
+        <div class="premier-alert-icon">✔</div>
+        <div class="premier-alert-title">Eligible for Premier</div>
+        <p class="premier-alert-note">${buildPremierTierNote(premierState)}</p>
+    `);
+    premierAdvanceTimer = setTimeout(() => {
+        hidePremierAlert();
+        showPremierPage('page6');
+    }, PREMIER_PASS_ALERT_MS);
+}
+
+// "$89/app meets the current Up to 0.50 acre bi-weekly rate ($89)." — shown in the pass pop-up
+function buildPremierTierNote(s) {
+    return s.rate > s.tierRate
+        ? `${formatPremierMoney(s.rate)}/app is above the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}). The 5% discount applies to their current rate.`
+        : `${formatPremierMoney(s.rate)}/app meets the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}).`;
+}
+
+function showPremierAlert(type, html) {
+    const card = document.getElementById('premierAlertCard');
+    card.className = `premier-alert ${type}`;
+    card.innerHTML = html;
+    document.getElementById('premierAlert').style.display = '';
+}
+
+function hidePremierAlert() {
+    clearTimeout(premierAdvanceTimer);
+    premierAdvanceTimer = null;
+    document.getElementById('premierAlert').style.display = 'none';
+    document.getElementById('premierAlertCard').innerHTML = '';
 }
 
 // ---- Page 6: Results ----
 
 function renderPremierResults() {
     const s = premierState;
-    const tierNote = s.rate > s.tierRate
-        ? `is above the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}). The 5% discount applies to their current rate.`
-        : `meets the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}).`;
-
-    document.getElementById('premierEligibleBanner').innerHTML = `
-        <div class="premier-status eligible">
-            <div class="premier-status-title">✔ Eligible for Premier</div>
-            <div>${formatPremierMoney(s.rate)}/app ${tierNote}</div>
-        </div>
-    `;
 
     document.getElementById('premierPackage').innerHTML = `
         <div class="package-card recommended premier-card">

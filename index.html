@@ -214,14 +214,9 @@
                     <input type="number" id="premierRate" step="0.01" min="0.01" placeholder="Bi-weekly rate per treatment (e.g., 109)">
                 </div>
 
-                <div id="premierEligibilityResult"></div>
-
-                <div id="premierCheckButtons" class="button-group">
+                <div class="button-group">
                     <button class="btn btn-secondary" onclick="exitPremier()">Back</button>
                     <button class="btn btn-premier-action" onclick="runPremierEligibilityCheck()">Check Eligibility</button>
-                </div>
-                <div id="premierResetButtons" class="button-group" style="display: none;">
-                    <button class="btn btn-primary" onclick="resetPremier()">Reset</button>
                 </div>
             </div>
 
@@ -229,7 +224,6 @@
             <div id="page6" class="page">
                 <h2 class="premier-step">Step 2: Premier Pricing</h2>
 
-                <div id="premierEligibleBanner"></div>
                 <div id="premierPackage"></div>
 
                 <h3 class="premier-section-title">Bundle an Add-On (optional)</h3>
@@ -358,6 +352,11 @@
             </label>
             <span style="font-weight: 600; color: #48bb78; font-size: 0.75rem;">All Natural</span>
         </div>
+    </div>
+
+    <!-- Premier eligibility pop-up (pass or fail) - outside container so it covers the whole screen -->
+    <div id="premierAlert" class="premier-alert-overlay" style="display: none;">
+        <div id="premierAlertCard" class="premier-alert" role="alertdialog" aria-modal="true"></div>
     </div>
 
     <!-- Configuration and Pricing Data -->
