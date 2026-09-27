@@ -340,7 +340,7 @@ function renderPremierResults() {
     document.getElementById('premierPackage').innerHTML = `
         <div class="package-card recommended premier-card">
             <div class="package-header">
-                <h3 class="package-title">Mosquito Mike Premier Subscription</h3>
+                <h3 class="package-title">Premier Subscription</h3>
                 <span class="premier-badge">October 2026 Only</span>
             </div>
             <div class="premier-breakdown">
