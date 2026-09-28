@@ -503,11 +503,19 @@ function renderPremierResults() {
     `;
 
     document.getElementById('premierAddonCards').innerHTML = PREMIER_CONFIG.addons
-        .map(a => a.premier_plus ? buildPremierPlusCard(a.key) : buildAddonCard(a.key, 'Optional Add-On'))
+        .map(a => a.premier_plus ? buildPremierPlusCard(a.key) : buildPremierAddonCard(a.key))
         .join('');
 
     renderPremierAddonOptions('premierAddonOptions', 'premier_addon');
     updatePremierAddonTotal();
+}
+
+// Regular add-on card, but with Premier's terms: add-ons bundled with Premier are no contract
+// (the regular calculator's add-on page keeps its 12-month agreement wording)
+function buildPremierAddonCard(addonKey) {
+    return buildAddonCard(addonKey, 'Optional Add-On')
+        .replace(/ on a 12-month agreement/g, ', no contract')
+        .replace(/12-month agreement/g, 'no contract');
 }
 
 // Premier+ talking points — numbers are filled from the client's Premier pricing
@@ -522,7 +530,7 @@ function getPremierPlusPitch(regular, price) {
             'Premier handles mosquitoes and ticks outside, April through October. Premier+ adds <strong>three foundation treatments a year</strong> — spring, summer, and fall — that keep ants, spiders, and 30+ other insects from getting inside, plus <strong>two rodent bait stations we check every quarter, all year long</strong>. So when mosquito season ends and it gets cold — right when mice start looking for a way in — you’re already covered.',
             'And you don’t have to wait for spring to start. <strong>We’ll get your first Insect + Rodent visit done this year</strong>, so your home is protected heading into the colder months — then your mosquito and tick protection kicks off as soon as the season opens back up in April.',
             'Each station works two ways: one bait takes care of active rodents, and a birth-control bait stops the smarter ones from reproducing. That’s how 2 mice never turn into 50. And if you’re seeing ants inside, we’ll leave you an interior ant bait that works hand-in-hand with the outside treatment.',
-            `Normally Insect + Rodent is $${regular} a month. Because you’re on Premier, it’s only <strong>$${price}</strong> — that’s <strong>$${monthlySave} off every month, $${yearlySave} a year</strong>. Add that to your Premier savings and you’re saving <strong>${formatPremierMoney(totalYearlySave)} a year</strong>.`,
+            `Normally Insect + Rodent is $${regular} a month. Because you’re on Premier, it’s only <strong>$${price}</strong> — that’s <strong>$${monthlySave} off every month, $${yearlySave} a year</strong>. Add that to your Premier savings and you’re saving <strong>${formatPremierMoney(totalYearlySave)} a year</strong>. Just like Premier, there’s <strong>no contract</strong>, and it all starts on the same November 1st billing as your Premier payment.`,
             '<strong>Yard, home, and everything in between — Premier+ is the one I’d recommend. Want me to set you up with Premier+?</strong>'
         ],
         value: [
@@ -531,6 +539,7 @@ function getPremierPlusPitch(regular, price) {
             '<strong>Protection starts this year</strong> — first Insect + Rodent visit now; mosquito & tick kicks off in April',
             `<strong>$${monthlySave} off every month</strong> — $${price}/mo instead of $${regular}/mo ($${yearlySave}/yr), only with Premier`,
             `<strong>${formatPremierMoney(totalYearlySave)} total savings per year</strong> with Premier+ (${formatPremierMoney(premierState.savings)} Premier + $${yearlySave} add-on)`,
+            '<strong>No contract</strong> — same flexibility as Premier, billed together starting November 1st',
             '<strong>Stops 2 mice from becoming 50</strong> — dual bait kills active rodents and stops reproduction',
             '<strong>Interior ant bait included</strong> for anything already inside'
         ],
@@ -547,7 +556,7 @@ function getPremierPlusPitch(regular, price) {
             'Stations checked <strong>quarterly</strong>',
             'Dual bait: rodenticide (kills) + birth control (long-term population control)',
             '<strong>Interior ant bait included</strong>',
-            `<strong>$${price}/month bundled</strong> with Premier (regularly $${regular}/month) — <strong>12-month agreement</strong>`
+            `<strong>$${price}/month bundled</strong> with Premier (regularly $${regular}/month) — <strong>no contract</strong>, billing starts ${PREMIER_CONFIG.billing_start}`
         ]
     };
 }
@@ -716,7 +725,7 @@ const PREMIER_EMAIL_ADDONS = {
             '<strong>2 rodent bait stations</strong>, checked quarterly all year long',
             '<strong>Interior ant bait included</strong> for anything already inside',
             '<strong>First Insect & Rodent visit this year</strong> — your home is protected heading into the colder months',
-            `<strong>Only $${price}/month with Premier</strong> (regularly $${regular}/month) — 12-month agreement`
+            `<strong>Only $${price}/month with Premier</strong> (regularly $${regular}/month) — no contract`
         ]
     },
     'insect_plan': {
@@ -724,7 +733,7 @@ const PREMIER_EMAIL_ADDONS = {
         bullets: price => [
             '<strong>3 foundation treatments a year</strong> (spring, summer, and fall) to keep ants, spiders, and 30+ other insects from getting inside',
             '<strong>Interior ant bait included</strong> for anything already inside',
-            `<strong>$${price}/month</strong> bundled with Premier — 12-month agreement`
+            `<strong>$${price}/month</strong> bundled with Premier — no contract`
         ]
     }
 };
@@ -741,7 +750,7 @@ function buildPremierEmailAddon() {
 
     let html = `<p><strong>${content.heading}</strong></p>`;
     html += `<ul>${content.bullets(price, regular).map(b => `<li>${b}</li>`).join('')}</ul>`;
-    html += `<p><strong>Your total: ${formatPremierMoney(s.monthly + price)}/month</strong> (${formatPremierMoney(s.monthly)} Premier + $${price} ${shortName})</p>`;
+    html += `<p><strong>Your total: ${formatPremierMoney(s.monthly + price)}/month</strong> starting ${PREMIER_CONFIG.billing_start} (${formatPremierMoney(s.monthly)} Premier + $${price} ${shortName})</p>`;
     return html;
 }
 
