@@ -212,9 +212,12 @@ const PREMIER_CONFIG = {
     "rate_tolerance": 5.00,
     "billing_start": "November 1st, 2026",
     "price_lock_text": "Price locked until Nov 1st, 2028",
-    // Add-ons offered with Premier — monthly prices come from ADDON_DATA in calculator.js
+    // Add-ons offered with Premier — regular monthly prices come from ADDON_DATA in calculator.js.
+    // "premier_price" overrides that price inside the Premier flow only (regular calculator is unchanged).
+    // "premier_plus": true brands the bundle as Premier+ (Premier + Insect & Rodent, approved $59 → $39/mo).
+    // Insect Only stays at its regular $29/mo — approved floor, do not discount below that.
     "addons": [
-        { "key": "insect_plan",        "option_label": "Foundation Sub",  "crm_label": "Foundation" },
-        { "key": "insect_rodent_plan", "option_label": "Insect + Rodent", "crm_label": "Insect + Rodent" }
+        { "key": "insect_rodent_plan", "option_label": "Premier+ (Insect & Rodent)", "crm_label": "Insect & Rodent", "premier_price": 39, "premier_plus": true },
+        { "key": "insect_plan",        "option_label": "Insect Only",                "crm_label": "Insect Only" }
     ]
 };
