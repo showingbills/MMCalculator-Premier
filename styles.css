@@ -1794,6 +1794,26 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     margin-top: 16px;
 }
 
+/* Premier+ upsell card — gold edge marks it as part of the Premier promo */
+body.premier-mode .premier-plus-card {
+    border-color: #d4af37;
+    background: linear-gradient(to bottom, #211b12 0%, var(--pm-surface) 100%);
+    box-shadow: 0 4px 18px rgba(212, 175, 55, 0.18);
+}
+
+body.premier-mode .premier-plus-card:hover {
+    border-color: #e9c94f;
+    box-shadow: 0 6px 22px rgba(212, 175, 55, 0.26);
+}
+
+.premier-was {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pm-muted);
+    text-decoration: line-through;
+    margin-right: 4px;
+}
+
 .premier-addon-select .tier-display {
     margin-top: 10px;
 }
@@ -1817,11 +1837,6 @@ body.premier-mode ::-webkit-scrollbar-thumb,
 
 .premier-reminder + .premier-reminder {
     margin-top: 0;
-}
-
-.premier-crm-addon {
-    margin-top: 12px;
-    margin-bottom: 0;
 }
 
 /* Optional rep notes appended to the CRM notes */

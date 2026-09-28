@@ -175,8 +175,17 @@ function escapePremierHtml(str) {
     return div.innerHTML;
 }
 
+function getPremierAddonConfig(addonKey) {
+    return PREMIER_CONFIG.addons.find(a => a.key === addonKey);
+}
+
+// Price inside the Premier flow — the Premier-only price if one is set (Premier+), else the regular add-on price
 function getPremierAddonPrice(addonKey) {
-    return ADDON_DATA[addonKey]?.monthlyPrice || 0;
+    return getPremierAddonConfig(addonKey)?.premier_price ?? ADDON_DATA[addonKey]?.monthlyPrice ?? 0;
+}
+
+function isPremierPlus(addonKey) {
+    return Boolean(getPremierAddonConfig(addonKey)?.premier_plus);
 }
 
 // ---- Navigation ----
@@ -494,11 +503,106 @@ function renderPremierResults() {
     `;
 
     document.getElementById('premierAddonCards').innerHTML = PREMIER_CONFIG.addons
-        .map(a => buildAddonCard(a.key, 'Optional Add-On'))
+        .map(a => a.premier_plus ? buildPremierPlusCard(a.key) : buildPremierAddonCard(a.key))
         .join('');
 
     renderPremierAddonOptions('premierAddonOptions', 'premier_addon');
     updatePremierAddonTotal();
+}
+
+// Regular add-on card, but with Premier's terms: add-ons bundled with Premier are no contract
+// (the regular calculator's add-on page keeps its 12-month agreement wording)
+function buildPremierAddonCard(addonKey) {
+    return buildAddonCard(addonKey, 'Optional Add-On')
+        .replace(/ on a 12-month agreement/g, ', no contract')
+        .replace(/12-month agreement/g, 'no contract');
+}
+
+// Premier+ talking points — numbers are filled from the client's Premier pricing
+function getPremierPlusPitch(regular, price) {
+    const monthlySave = regular - price;
+    const yearlySave = monthlySave * PREMIER_CONFIG.payment_months;
+    const totalYearlySave = premierState.savings + yearlySave;
+
+    return {
+        pitch: [
+            'Since you’re locking in Premier for the yard, I want to show you what makes <strong>Premier+</strong> our most complete protection — it takes that same coverage from the yard to the home itself.',
+            'Premier handles mosquitoes and ticks outside, April through October. Premier+ adds <strong>three foundation treatments a year</strong> — spring, summer, and fall — that keep ants, spiders, and 30+ other insects from getting inside, plus <strong>two rodent bait stations we check every quarter, all year long</strong>. So when mosquito season ends and it gets cold — right when mice start looking for a way in — you’re already covered.',
+            'And you don’t have to wait for spring to start. <strong>We’ll get your first Insect + Rodent visit done this year</strong>, so your home is protected heading into the colder months — then your mosquito and tick protection kicks off as soon as the season opens back up in April.',
+            'Each station works two ways: one bait takes care of active rodents, and a birth-control bait stops the smarter ones from reproducing. That’s how 2 mice never turn into 50. And if you’re seeing ants inside, we’ll leave you an interior ant bait that works hand-in-hand with the outside treatment.',
+            `Normally Insect + Rodent is $${regular} a month. Because you’re on Premier, it’s only <strong>$${price}</strong> — that’s <strong>$${monthlySave} off every month, $${yearlySave} a year</strong>. Add that to your Premier savings and you’re saving <strong>${formatPremierMoney(totalYearlySave)} a year</strong>. Just like Premier, there’s <strong>no contract</strong>, and it all starts on the same November 1st billing as your Premier payment.`,
+            '<strong>Yard, home, and everything in between — Premier+ is the one I’d recommend. Want me to set you up with Premier+?</strong>'
+        ],
+        value: [
+            '<strong>Outside and in</strong> — Premier protects the yard; Premier+ protects the home too',
+            '<strong>Year-round rodent protection</strong> — stations checked quarterly, even after mosquito season ends',
+            '<strong>Protection starts this year</strong> — first Insect + Rodent visit now; mosquito & tick kicks off in April',
+            `<strong>$${monthlySave} off every month</strong> — $${price}/mo instead of $${regular}/mo ($${yearlySave}/yr), only with Premier`,
+            `<strong>${formatPremierMoney(totalYearlySave)} total savings per year</strong> with Premier+ (${formatPremierMoney(premierState.savings)} Premier + $${yearlySave} add-on)`,
+            '<strong>No contract</strong> — same flexibility as Premier, billed together starting November 1st',
+            '<strong>Stops 2 mice from becoming 50</strong> — dual bait kills active rodents and stops reproduction',
+            '<strong>Interior ant bait included</strong> for anything already inside'
+        ],
+        objection: {
+            q: 'I don’t really have a rodent or ant problem.',
+            a: `That’s great — and it’s actually the best time to start. It’s a lot easier (and cheaper) to keep pests out than to get them out once they’re inside. Premier+ keeps that barrier up before anything shows up, and with Premier you’re getting it for $${price} a month instead of $${regular}.`
+        },
+        // Premier+ service terms
+        details: [
+            '<strong>3 foundation treatments per year</strong> (spring, summer, fall) — 90-day barrier each',
+            '<strong>First Insect + Rodent visit this year (2026)</strong> — mosquito & tick service starts when the season opens in April 2027',
+            'Targets ants, spiders, cockroaches, silverfish, centipedes, earwigs, crickets, beetles, millipedes, and more',
+            '<strong>2 rodent bait stations</strong> placed on either side of the home',
+            'Stations checked <strong>quarterly</strong>',
+            'Dual bait: rodenticide (kills) + birth control (long-term population control)',
+            '<strong>Interior ant bait included</strong>',
+            `<strong>$${price}/month bundled</strong> with Premier (regularly $${regular}/month) — <strong>no contract</strong>, billing starts ${PREMIER_CONFIG.billing_start}`
+        ]
+    };
+}
+
+// Premier+ upsell card: its own pitch, value points, and service details
+function buildPremierPlusCard(addonKey) {
+    const regular = ADDON_DATA[addonKey].monthlyPrice;
+    const price = getPremierAddonPrice(addonKey);
+    const tp = getPremierPlusPitch(regular, price);
+
+    return `
+        <div class="package-card addon-card premier-plus-card">
+            <div class="package-header">
+                <h3 class="package-title">Premier+ — Insect + Rodent Prevention</h3>
+                <span class="premier-badge">Premier+ Exclusive</span>
+            </div>
+            <div class="pricing-row">
+                <div class="pricing-option">
+                    <div class="pricing-label">Premier+ Bundled Monthly</div>
+                    <div class="pricing-amount"><span class="premier-was">$${regular}</span> $${price}/mo</div>
+                    <div class="premier-pricing-sub">Save $${regular - price}/mo ($${(regular - price) * PREMIER_CONFIG.payment_months}/yr) — only with Premier</div>
+                </div>
+            </div>
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Why Premier+?</h4>
+                <div class="tp-content collapsed">
+                    <div class="tp-pitch">${tp.pitch.map(p => `<p>${p}</p>`).join('')}</div>
+                    <div class="tp-section">
+                        <div class="tp-section-title">Value to Highlight</div>
+                        <ul>${tp.value.map(v => `<li>${v}</li>`).join('')}</ul>
+                    </div>
+                    <div class="tp-section">
+                        <div class="tp-section-title">If They Push Back</div>
+                        <div class="premier-objection">
+                            <div class="premier-objection-q">“${tp.objection.q}”</div>
+                            <p>${tp.objection.a}</p>
+                        </div>
+                    </div>
+                    <div class="tp-section">
+                        <div class="tp-section-title">Key Details</div>
+                        <ul>${tp.details.map(d => `<li>${d}</li>`).join('')}</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Add-on picker (radio group) — rendered on page6 and page7, both backed by premierAddon
@@ -521,6 +625,7 @@ function setPremierAddon(addonKey) {
     updatePremierAddonTotal();
     updatePremierCrmNote();
     updatePremierPitchedNote();
+    refreshPremierEmailIfShown();
 }
 
 function updatePremierAddonTotal() {
@@ -529,23 +634,29 @@ function updatePremierAddonTotal() {
         el.innerHTML = '';
         return;
     }
-    const addonPrice = getPremierAddonPrice(premierAddon);
+    const addonPrice = premierAddon === 'none' ? 0 : getPremierAddonPrice(premierAddon);
+    const label = isPremierPlus(premierAddon) ? 'Premier+ total' : 'Total';
     el.innerHTML = addonPrice
-        ? `<strong>Total:</strong> ${formatPremierMoney(premierState.monthly)} + $${addonPrice} = <strong>${formatPremierMoney(premierState.monthly + addonPrice)}/mo</strong>`
-        : `<strong>Total:</strong> ${formatPremierMoney(premierState.monthly)}/mo (Premier only)`;
+        ? `<strong>${label}:</strong> ${formatPremierMoney(premierState.monthly)} + $${addonPrice} = <strong>${formatPremierMoney(premierState.monthly + addonPrice)}/mo</strong>`
+        : `<strong>${label}:</strong> ${formatPremierMoney(premierState.monthly)}/mo (Premier only)`;
 }
 
 // ---- CRM notes (page7 Sold, page8 Pitched) ----
 
-// "Premier Sub at $X per month ($X per app)[ + $29 per month for Foundation = $X per month]"
+// "Premier Sub: $121/mo ($103.55 per app)"
+// "Premier+ Sub: $121/mo Premier ($103.55 per app) + $39/mo Insect & Rodent (reg. $59) = $160/mo total"
 function buildPremierOffer() {
     const s = premierState;
-    const base = `Premier Sub at ${formatPremierMoney(s.monthly)} per month (${formatPremierMoney(s.discounted)} per app)`;
-    const addon = PREMIER_CONFIG.addons.find(a => a.key === premierAddon);
+    const addon = getPremierAddonConfig(premierAddon);
+    const program = addon?.premier_plus ? 'Premier+ Sub' : 'Premier Sub';
+    const perApp = `(${formatPremierMoney(s.discounted)} per app)`;
 
-    if (!addon) return base;
-    const addonPrice = getPremierAddonPrice(addon.key);
-    return `${base} + $${addonPrice} per month for ${addon.crm_label} = ${formatPremierMoney(s.monthly + addonPrice)} per month`;
+    if (!addon) return `${program}: ${formatPremierMoney(s.monthly)}/mo ${perApp}`;
+
+    const price = getPremierAddonPrice(addon.key);
+    const regular = ADDON_DATA[addon.key].monthlyPrice;
+    const regNote = price < regular ? ` (reg. $${regular})` : '';
+    return `${program}: ${formatPremierMoney(s.monthly)}/mo Premier ${perApp} + $${price}/mo ${addon.crm_label}${regNote} = ${formatPremierMoney(s.monthly + price)}/mo total`;
 }
 
 // Rep's optional extra notes, appended with the same " :: " separator (one segment per line typed)
@@ -605,6 +716,51 @@ async function copyPremierText(sourceId, btn) {
 
 // ---- Page 8: Pitched (follow-up email + pitched CRM note) ----
 
+// Email quote block for the pitched add-on — client-facing wording, prices filled in at build time
+const PREMIER_EMAIL_ADDONS = {
+    'insect_rodent_plan': {
+        heading: 'Premier+ Upgrade: Insect & Rodent Protection',
+        bullets: (price, regular) => [
+            '<strong>3 foundation treatments a year</strong> (spring, summer, and fall) to keep ants, spiders, and 30+ other insects from getting inside',
+            '<strong>2 rodent bait stations</strong>, checked quarterly all year long',
+            '<strong>Interior ant bait included</strong> for anything already inside',
+            '<strong>First Insect & Rodent visit this year</strong> — your home is protected heading into the colder months',
+            `<strong>Only $${price}/month with Premier</strong> (regularly $${regular}/month) — no contract`
+        ]
+    },
+    'insect_plan': {
+        heading: 'Add-On: Insect Only Protection',
+        bullets: price => [
+            '<strong>3 foundation treatments a year</strong> (spring, summer, and fall) to keep ants, spiders, and 30+ other insects from getting inside',
+            '<strong>Interior ant bait included</strong> for anything already inside',
+            `<strong>$${price}/month</strong> bundled with Premier — no contract`
+        ]
+    }
+};
+
+function buildPremierEmailAddon() {
+    const addon = getPremierAddonConfig(premierAddon);
+    const content = addon && PREMIER_EMAIL_ADDONS[addon.key];
+    if (!content) return '';
+
+    const s = premierState;
+    const price = getPremierAddonPrice(addon.key);
+    const regular = ADDON_DATA[addon.key].monthlyPrice;
+    const shortName = addon.premier_plus ? 'Premier+' : addon.crm_label;
+
+    let html = `<p><strong>${content.heading}</strong></p>`;
+    html += `<ul>${content.bullets(price, regular).map(b => `<li>${b}</li>`).join('')}</ul>`;
+    html += `<p><strong>Your total: ${formatPremierMoney(s.monthly + price)}/month</strong> starting ${PREMIER_CONFIG.billing_start} (${formatPremierMoney(s.monthly)} Premier + $${price} ${shortName})</p>`;
+    return html;
+}
+
+// Keep an already-generated email in sync when the rep changes the add-on
+function refreshPremierEmailIfShown() {
+    const shown = document.getElementById('premierGeneratedEmail').style.display === 'block';
+    const hasNames = document.getElementById('premierClientName').value.trim() && document.getElementById('premierRepName').value.trim();
+    if (shown && hasNames) generatePremierEmail();
+}
+
 function generatePremierEmail() {
     const clientNameEl = document.getElementById('premierClientName');
     const repNameEl = document.getElementById('premierRepName');
@@ -640,6 +796,7 @@ function generatePremierEmail() {
     html += `<li>Premier Discounted Price Per Spray (5% off): <strong>${formatPremierMoney(s.discounted)}</strong></li>`;
     html += `<li>Monthly Payment: <strong>${formatPremierMoney(s.monthly)}</strong> starting November 1st, 2026</li>`;
     html += `</ul>`;
+    html += buildPremierEmailAddon();
     html += `<p>To finalize your Premier Subscription, simply reply to this email confirming that you’d like to move forward. We’ll take care of everything else and ensure your account is set up for the 2027 season.</p>`;
     html += `<p>We’re thrilled to continue keeping your yard mosquito- and tick-free — and now, with even more savings and convenience!</p>`;
     html += `<p>Best regards,<br>${escapePremierHtml(repName)}<br>Mosquito Mike</p>`;
