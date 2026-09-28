@@ -1177,12 +1177,6 @@ body.premier-mode .input-group input::placeholder {
     color: #6f6680;
 }
 
-body.premier-mode #page5 .input-group input[type="number"]:disabled {
-    background: #121016;
-    color: var(--pm-muted);
-    cursor: not-allowed;
-}
-
 body.premier-mode .required {
     color: var(--pm-purple-light);
 }
@@ -1459,45 +1453,135 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     display: none;
 }
 
-/* Eligible / not eligible banner */
-.premier-status {
-    padding: 12px 14px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    font-size: 0.85rem;
-    line-height: 1.45;
+/* Premier pop-ups: eligibility pass (green) / fail (red, Reset only), Sold (gold), Pitched (purple) */
+.premier-alert-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(5, 4, 8, 0.72);
 }
 
-.premier-status.eligible {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid #166534;
+.premier-alert {
+    width: 100%;
+    max-width: 360px;
+    padding: 24px 20px 20px;
+    background: var(--pm-surface);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.premier-alert.pass {
+    border: 2px solid #22c55e;
+}
+
+.premier-alert.fail {
+    border: 2px solid #ef4444;
+}
+
+.premier-alert.sold {
+    border: 2px solid #d4af37;
+}
+
+.premier-alert.pitched {
+    border: 2px solid var(--pm-purple);
+}
+
+.premier-alert-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.premier-alert.pass .premier-alert-icon {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.premier-alert.fail .premier-alert-icon {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.premier-alert.sold .premier-alert-icon {
+    background: rgba(212, 175, 55, 0.18);
+}
+
+.premier-alert.pitched .premier-alert-icon {
+    background: rgba(139, 92, 246, 0.18);
+}
+
+.premier-alert-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.premier-alert.pass .premier-alert-title {
     color: #86efac;
 }
 
-.premier-status.not-eligible {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid #7f1d1d;
+.premier-alert.fail .premier-alert-title {
     color: #fca5a5;
 }
 
-.premier-status-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    margin-bottom: 4px;
+.premier-alert.sold .premier-alert-title {
+    color: #f7e08a;
 }
 
-.premier-status ul {
-    padding-left: 18px;
-    margin: 6px 0;
+.premier-alert.pitched .premier-alert-title {
+    color: var(--pm-purple-light);
 }
 
-.premier-status li {
-    margin-bottom: 4px;
-}
-
-.premier-status-note {
-    font-weight: 600;
+/* "+$10" on the Sold pop-up — same gold gradient as the monthly payment */
+.premier-alert-commission {
     margin-top: 6px;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(180deg, #fbeaa0 0%, #e6c55a 45%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.premier-alert-commission + .premier-alert-note {
+    margin-top: 2px;
+}
+
+.premier-alert-note {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--pm-text-2);
+    line-height: 1.45;
+}
+
+.premier-alert-reasons {
+    margin: 12px 0 0;
+    padding-left: 18px;
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--pm-text-2);
+    line-height: 1.45;
+}
+
+.premier-alert-reasons li {
+    margin-bottom: 6px;
+}
+
+.premier-alert-btn {
+    width: 100%;
+    margin-top: 16px;
 }
 
 /* Price breakdown rows */
@@ -1555,6 +1639,14 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: var(--pm-muted);
     margin-top: 4px;
     font-weight: 500;
+}
+
+/* Monthly payment — gold gradient text, same gold as the Premier buttons */
+.premier-monthly-amount {
+    background: linear-gradient(180deg, #fbeaa0 0%, #e6c55a 45%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* Savings vs. standard PIF 14 */
@@ -1647,6 +1739,57 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     border-left: 3px solid #d4af37;
 }
 
+/* Pitch script — gold rule like the objection answers, one short paragraph per point */
+.premier-pitch {
+    padding-left: 10px;
+    border-left: 3px solid #d4af37;
+}
+
+.premier-pitch p {
+    margin: 0 0 10px;
+    font-size: 0.84rem;
+    color: var(--pm-text-2);
+    line-height: 1.55;
+}
+
+.premier-pitch p:last-child {
+    margin-bottom: 4px;
+}
+
+.premier-pitch strong {
+    color: #f7e08a;
+}
+
+/* Value building — same gold rule as the objection answers */
+.premier-value {
+    margin-bottom: 14px;
+}
+
+.premier-value-title {
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: var(--pm-text);
+    margin-bottom: 4px;
+}
+
+.premier-value p {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    color: var(--pm-text-2);
+    line-height: 1.5;
+    padding-left: 10px;
+    border-left: 3px solid #d4af37;
+}
+
+.premier-value strong {
+    color: #f7e08a;
+}
+
+/* Headline key point: star in place of the check mark */
+.tp-content li.premier-star:before {
+    content: "\2B50";
+}
+
 .premier-addon-select {
     margin-top: 16px;
 }
@@ -1673,6 +1816,27 @@ body.premier-mode .premier-plus-card:hover {
 
 .premier-addon-select .tier-display {
     margin-top: 10px;
+}
+
+/* Sold page reminders (post in Discord, set up recurring billing) */
+.premier-reminder {
+    margin: -8px 0 20px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.06) 100%);
+    border: 1px solid #d4af37;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    color: #f7e08a;
+    line-height: 1.4;
+}
+
+/* Stacked reminders sit closer together */
+.premier-reminder:has(+ .premier-reminder) {
+    margin-bottom: 10px;
+}
+
+.premier-reminder + .premier-reminder {
+    margin-top: 0;
 }
 
 /* Optional rep notes appended to the CRM notes */

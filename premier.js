@@ -1,17 +1,77 @@
 // ---- Premier Subscription (October 2026 promo) ----
-// Separate flow: page5 (eligibility) → page6 (pricing + add-ons) → page7 (Sold: CRM note) / page8 (Not Sold: email)
+// Separate flow: page5 (eligibility) → page6 (pricing + add-ons) → page7 (Sold: CRM note) / page8 (Pitched: email)
 
 let premierState = null; // Set once eligibility passes: { acres, tier, tierRate, rate, discounted, monthly, standardPif14, premierTotal, savings }
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
+let premierAdvanceTimer = null; // Pending move from a pop-up to the next page
 
-// Bold = the benefit the rep should land on; the rest is supporting detail
+// How long each pop-up shows before moving on to its page
+const PREMIER_PASS_ALERT_MS = 1500;
+const PREMIER_SOLD_ALERT_MS = 1000;
+const PREMIER_PITCHED_ALERT_MS = 2000; // Longer message, so it stays up longer
+
+// Bold = the benefit the rep should land on; the rest is supporting detail. star = headline point, gets a ⭐ instead of a check
 const PREMIER_KEY_POINTS = [
-    '<strong>Full-season protection</strong>, April through October (up to 14 applications)',
-    '<strong>5% discount</strong> on each application',
-    '<strong>Low monthly payments</strong> starting November 1st',
-    '<strong>Locked rate for two full years</strong> — no increases, no inflation worries',
-    '<strong>No contract or cancellation fee</strong>'
+    { text: '<strong>Full-season protection</strong>, April through October (up to 14 applications)' },
+    { text: '<strong>5% discount</strong> on each application' },
+    { text: '<strong>Low monthly payments</strong> starting November 1st' },
+    { text: '<strong>Locked rate for two full years</strong> — no increases, no inflation worries', star: true },
+    { text: '<strong>No contract or cancellation fee</strong>' }
 ];
+
+// Script the rep reads, filled in with the client's numbers — one paragraph per talking point
+function buildPremierPitch(s) {
+    return [
+        `Because you’re already one of our clients, you qualify for our Premier Subscription. We’re only offering it through the end of October.`,
+        `It covers the full season, April through October, with up to ${PREMIER_CONFIG.applications_per_season} applications starting in 2027.`,
+        `You get 5% off every application, so your rate drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)} per application</strong>.`,
+        `Instead of paying at each visit or getting a big bill in the spring, the cost is split into ${PREMIER_CONFIG.payment_months} low monthly payments of <strong>${formatPremierMoney(s.monthly)} per month</strong>, starting ${PREMIER_CONFIG.billing_start}.`,
+        `Your rate is <strong>locked for two full years</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
+        `<strong>Would you like me to get you set up?</strong>`
+    ];
+}
+
+// Value-building talk track, one entry per benefit. The price lock leads — it's the main value
+// (star: true, same as the key point). Filled in with the client's numbers like the pitch.
+function buildPremierValuePoints(s) {
+    const apps = PREMIER_CONFIG.applications_per_season;
+    const exampleIncrease = 5; // $ per application, for the "what an increase costs you" example
+    return [
+        {
+            title: 'Locked rate for two full years',
+            star: true,
+            paragraphs: [
+                `Nearly every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
+                `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is locked until Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
+                `Even a ${formatPremierMoney(exampleIncrease)} increase per application would add <strong>${formatPremierMoney(exampleIncrease * apps)} over a ${apps}-application season</strong>. Premier protects you from that for two full years.`
+            ]
+        },
+        {
+            title: '5% discount on each application',
+            paragraphs: [
+                `On top of locking in your rate, we take 5% off it, so every application drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)}</strong>. That lower rate is the one we lock in, so you keep the discount for both seasons.`
+            ]
+        },
+        {
+            title: 'Low monthly payments',
+            paragraphs: [
+                `There’s no big bill in the spring and nothing to pay at each visit. It’s <strong>${formatPremierMoney(s.monthly)} a month</strong> starting ${PREMIER_CONFIG.billing_start}, the same amount every month, so it’s easy to budget for.`
+            ]
+        },
+        {
+            title: 'Full-season protection',
+            paragraphs: [
+                `You’re covered April through October with up to ${apps} applications. You’re protected from the first warm days of spring right through the fall, without having to think about scheduling or missing an application.`
+            ]
+        },
+        {
+            title: 'No contract or cancellation fee',
+            paragraphs: [
+                `You get all of this without being tied down. There’s no contract and no cancellation fee, so you stay in full control and there’s no risk in trying it.`
+            ]
+        }
+    ];
+}
 
 const PREMIER_OBJECTIONS = [
     {
@@ -92,6 +152,9 @@ function calculatePremierPricing(rate) {
 
     return {
         discounted: Math.round(rateCents * keptPct / 100) / 100, // rounded to 2 decimals for display
+        // Steps shown in the Math Breakdown (rounded to cents for display): discounted × apps, then ÷ months
+        seasonTotal: Math.round(rateCents * keptPct * apps / 100) / 100,
+        monthlyExact: Math.round(rateCents * keptPct * apps / (100 * months)) / 100,
         monthly,
         standardPif14,
         premierTotal,
@@ -164,6 +227,24 @@ function backToPremierResults() {
     showPremierPage('page6');
 }
 
+// Sold/Pitched buttons on page6 show a pop-up first, then open their page
+function sellPremier() {
+    showPremierAlertThen('sold', `
+        <div class="premier-alert-icon">🎉</div>
+        <div class="premier-alert-title">Premier Sold!</div>
+        <div class="premier-alert-commission">+$${PREMIER_CONFIG.sale_commission}</div>
+        <p class="premier-alert-note">commission earned. Nice work!</p>
+    `, PREMIER_SOLD_ALERT_MS, goToPremierSold);
+}
+
+function pitchPremier() {
+    showPremierAlertThen('pitched', `
+        <div class="premier-alert-icon">💪</div>
+        <div class="premier-alert-title">Not a dead lead!</div>
+        <p class="premier-alert-note">Most clients just need time to think it over. Send the follow-up email and check back in throughout the month.</p>
+    `, PREMIER_PITCHED_ALERT_MS, goToPremierEmail);
+}
+
 function goToPremierSold() {
     renderPremierAddonOptions('premierSoldAddonOptions', 'premier_sold_addon');
     updatePremierCrmNote();
@@ -192,16 +273,12 @@ function clearPremierState() {
     const rate = document.getElementById('premierRate');
     acreage.value = '';
     rate.value = '';
-    acreage.disabled = false;
-    rate.disabled = false;
 
     const tierDisplay = document.getElementById('premierTierDisplay');
     tierDisplay.innerHTML = '';
     tierDisplay.classList.remove('warning');
 
-    document.getElementById('premierEligibilityResult').innerHTML = '';
-    document.getElementById('premierCheckButtons').style.display = '';
-    document.getElementById('premierResetButtons').style.display = 'none';
+    hidePremierAlert();
 
     document.getElementById('premierPackage').innerHTML = '';
     document.getElementById('premierAddonCards').innerHTML = '';
@@ -256,46 +333,66 @@ function runPremierEligibilityCheck() {
     const result = checkPremierEligibility(acres, rate);
 
     if (!result.eligible) {
-        // Dead end: lock the inputs — the only way forward is a full Reset
-        acreageEl.disabled = true;
-        rateEl.disabled = true;
-        document.getElementById('premierCheckButtons').style.display = 'none';
-        document.getElementById('premierResetButtons').style.display = '';
-        document.getElementById('premierEligibilityResult').innerHTML = `
-            <div class="premier-status not-eligible">
-                <div class="premier-status-title">✖ Not Eligible for Premier</div>
-                <ul>${result.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
-                <div class="premier-status-note">Reset to start a new calculation.</div>
-            </div>
-        `;
+        // Dead end: the pop-up only offers Reset, which starts a fresh check
+        showPremierAlert('fail', `
+            <div class="premier-alert-icon">✖</div>
+            <div class="premier-alert-title">Not Eligible for Premier</div>
+            <ul class="premier-alert-reasons">${result.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+            <button class="btn btn-primary premier-alert-btn" onclick="resetPremier()">Reset</button>
+        `);
         return;
     }
 
     premierState = { ...result, ...calculatePremierPricing(rate) };
     premierAddon = 'none';
     renderPremierResults();
-    showPremierPage('page6');
+
+    showPremierAlertThen('pass', `
+        <div class="premier-alert-icon">✔</div>
+        <div class="premier-alert-title">Eligible for Premier</div>
+        <p class="premier-alert-note">${buildPremierTierNote(premierState)}</p>
+    `, PREMIER_PASS_ALERT_MS, () => showPremierPage('page6'));
+}
+
+// "$89/app meets the current Up to 0.50 acre bi-weekly rate ($89)." — shown in the pass pop-up
+function buildPremierTierNote(s) {
+    return s.rate > s.tierRate
+        ? `${formatPremierMoney(s.rate)}/app is above the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}). The 5% discount applies to their current rate.`
+        : `${formatPremierMoney(s.rate)}/app meets the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}).`;
+}
+
+function showPremierAlert(type, html) {
+    const card = document.getElementById('premierAlertCard');
+    card.className = `premier-alert ${type}`;
+    card.innerHTML = html;
+    document.getElementById('premierAlert').style.display = '';
+}
+
+// Show a pop-up for `ms`, then close it and run `next` (usually opening the next page)
+function showPremierAlertThen(type, html, ms, next) {
+    showPremierAlert(type, html);
+    premierAdvanceTimer = setTimeout(() => {
+        hidePremierAlert();
+        next();
+    }, ms);
+}
+
+function hidePremierAlert() {
+    clearTimeout(premierAdvanceTimer);
+    premierAdvanceTimer = null;
+    document.getElementById('premierAlert').style.display = 'none';
+    document.getElementById('premierAlertCard').innerHTML = '';
 }
 
 // ---- Page 6: Results ----
 
 function renderPremierResults() {
     const s = premierState;
-    const tierNote = s.rate > s.tierRate
-        ? `is above the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}). The 5% discount applies to their current rate.`
-        : `meets the current ${s.tier} acre bi-weekly rate (${formatPremierMoney(s.tierRate)}).`;
-
-    document.getElementById('premierEligibleBanner').innerHTML = `
-        <div class="premier-status eligible">
-            <div class="premier-status-title">✔ Eligible for Premier</div>
-            <div>${formatPremierMoney(s.rate)}/app ${tierNote}</div>
-        </div>
-    `;
 
     document.getElementById('premierPackage').innerHTML = `
         <div class="package-card recommended premier-card">
             <div class="package-header">
-                <h3 class="package-title">Mosquito Mike Premier Subscription</h3>
+                <h3 class="package-title">Premier Subscription</h3>
                 <span class="premier-badge">October 2026 Only</span>
             </div>
             <div class="premier-breakdown">
@@ -311,7 +408,7 @@ function renderPremierResults() {
             <div class="pricing-row">
                 <div class="pricing-option">
                     <div class="pricing-label">Monthly Payment</div>
-                    <div class="pricing-amount">${formatPremierMoney(s.monthly)}/mo</div>
+                    <div class="pricing-amount premier-monthly-amount">${formatPremierMoney(s.monthly)}/mo</div>
                     <div class="premier-pricing-sub">Starting ${PREMIER_CONFIG.billing_start} · covers the 2027 season onward</div>
                 </div>
             </div>
@@ -341,12 +438,31 @@ function renderPremierResults() {
                 </div>
             </div>
             <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Pitch</h4>
+                <div class="tp-content collapsed">
+                    <div class="premier-pitch">
+                        ${buildPremierPitch(s).map(p => `<p>${p}</p>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="talking-points">
                 <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Why Premier?</h4>
                 <div class="tp-content collapsed">
                     <div class="tp-section">
                         <div class="tp-section-title">Key Points to Present</div>
-                        <ul>${PREMIER_KEY_POINTS.map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul>${PREMIER_KEY_POINTS.map(p => `<li${p.star ? ' class="premier-star"' : ''}>${p.text}</li>`).join('')}</ul>
                     </div>
+                </div>
+            </div>
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Value Building</h4>
+                <div class="tp-content collapsed">
+                    ${buildPremierValuePoints(s).map(v => `
+                        <div class="premier-value">
+                            <div class="premier-value-title">${v.star ? '⭐ ' : ''}${v.title}</div>
+                            ${v.paragraphs.map(p => `<p>${p}</p>`).join('')}
+                        </div>
+                    `).join('')}
                 </div>
             </div>
             <div class="talking-points">
@@ -358,6 +474,29 @@ function renderPremierResults() {
                             <p>${o.a}</p>
                         </div>
                     `).join('')}
+                </div>
+            </div>
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Math Breakdown</h4>
+                <div class="tp-content collapsed">
+                    <div class="premier-breakdown">
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.rate)} × ${1 - PREMIER_CONFIG.discount_rate}<small>5% off each application</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.discounted)}/app</span>
+                        </div>
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.discounted)} × ${PREMIER_CONFIG.applications_per_season}<small>${PREMIER_CONFIG.applications_per_season} applications per season</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.seasonTotal)}</span>
+                        </div>
+                        <div class="premier-line">
+                            <span>${formatPremierMoney(s.seasonTotal)} ÷ ${PREMIER_CONFIG.payment_months}<small>${PREMIER_CONFIG.payment_months} monthly payments</small></span>
+                            <span class="premier-line-amount">${formatPremierMoney(s.monthlyExact)}</span>
+                        </div>
+                        <div class="premier-line">
+                            <span><strong>Rounded up to the next dollar</strong></span>
+                            <span class="premier-line-amount premier-monthly-amount">${formatPremierMoney(s.monthly)}/mo</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -566,7 +705,7 @@ async function copyPremierText(sourceId, btn) {
     }, 2500);
 }
 
-// ---- Page 8: Not Sold (follow-up email + pitched CRM note) ----
+// ---- Page 8: Pitched (follow-up email + pitched CRM note) ----
 
 // Email quote block for the pitched add-on — client-facing wording, prices filled in at build time
 const PREMIER_EMAIL_ADDONS = {
