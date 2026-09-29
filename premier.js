@@ -229,10 +229,13 @@ function backToPremierResults() {
 
 // Sold/Pitched buttons on page6 show a pop-up first, then open their page
 function sellPremier() {
+    const commission = premierAddon === 'none'
+        ? PREMIER_CONFIG.sale_commission
+        : PREMIER_CONFIG.addon_sale_commission;
     showPremierAlertThen('sold', `
         <div class="premier-alert-icon">🎉</div>
         <div class="premier-alert-title">Premier Sold!</div>
-        <div class="premier-alert-commission">+$${PREMIER_CONFIG.sale_commission}</div>
+        <div class="premier-alert-commission">+$${commission}</div>
         <p class="premier-alert-note">commission earned. Nice work!</p>
     `, PREMIER_SOLD_ALERT_MS, goToPremierSold);
 }
