@@ -5,8 +5,10 @@ let premierState = null; // Set once eligibility passes: { acres, tier, tierRate
 let premierAddon = 'none'; // 'none' | 'insect_plan' | 'insect_rodent_plan' — shared by page6 and page7
 let premierAdvanceTimer = null; // Pending move from a pop-up to the next page
 
+// ServiceMinder tag the rep must add before leaving the eligibility pass pop-up
+const PREMIER_ELIGIBLE_TAG = 'Premier 2027 - Eligible';
+
 // How long each pop-up shows before moving on to its page
-const PREMIER_PASS_ALERT_MS = 1500;
 const PREMIER_SOLD_ALERT_MS = 1000;
 const PREMIER_PITCHED_ALERT_MS = 2000; // Longer message, so it stays up longer
 
@@ -350,11 +352,21 @@ function runPremierEligibilityCheck() {
     premierAddon = 'none';
     renderPremierResults();
 
-    showPremierAlertThen('pass', `
+    // Stays up until the rep confirms the ServiceMinder tag — Continue is locked until the box is checked
+    showPremierAlert('pass', `
         <div class="premier-alert-icon">✔</div>
         <div class="premier-alert-title">Eligible for Premier</div>
         <p class="premier-alert-note">${buildPremierTierNote(premierState)}</p>
-    `, PREMIER_PASS_ALERT_MS, () => showPremierPage('page6'));
+        <div class="premier-alert-task">
+            <p>Before continuing, tag the client&rsquo;s account on <strong>ServiceMinder</strong> with:</p>
+            <span class="premier-alert-tag">${PREMIER_ELIGIBLE_TAG}</span>
+        </div>
+        <label class="premier-alert-confirm">
+            <input type="checkbox" id="premierTagConfirm" onchange="document.getElementById('premierTagContinue').disabled = !this.checked">
+            <span>I&rsquo;ve tagged the account &ldquo;${PREMIER_ELIGIBLE_TAG}&rdquo; on ServiceMinder</span>
+        </label>
+        <button id="premierTagContinue" class="btn btn-primary premier-alert-btn" onclick="hidePremierAlert(); showPremierPage('page6')" disabled>Continue</button>
+    `);
 }
 
 // "$89/app meets the current Up to 0.50 acre bi-weekly rate ($89)." — shown in the pass pop-up
