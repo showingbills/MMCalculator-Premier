@@ -213,6 +213,7 @@ const PREMIER_CONFIG = {
     "billing_start": "November 1st, 2026",
     "price_lock_text": "Price locked until Nov 1st, 2028",
     "sale_commission": 10, // $ the rep earns per Premier sale, shown in the Sold pop-up
+    "addon_sale_commission": 15, // $ instead, when the sale includes Premier+ or Insect Only
     // Add-ons offered with Premier — regular monthly prices come from ADDON_DATA in calculator.js.
     // "premier_price" overrides that price inside the Premier flow only (regular calculator is unchanged).
     // "premier_plus": true brands the bundle as Premier+ (Premier + Insect & Rodent, approved $59 → $39/mo).
