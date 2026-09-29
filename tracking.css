@@ -1,0 +1,361 @@
+/* ---- Rep sign-in & Premier sales tracking ---- */
+
+/* Until someone signs in, the calculator is hidden behind the sign-in screen */
+body.auth-locked .container,
+body.auth-locked .pricing-toggle-container,
+body.auth-locked .premier-alert-overlay {
+    display: none !important;
+}
+
+.auth-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color-scheme: light;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+    padding: 24px 20px;
+    text-align: center;
+}
+
+.auth-logo {
+    max-width: 110px;
+    height: auto;
+    margin-bottom: 12px;
+}
+
+.auth-card h2 {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+
+.auth-subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+.auth-error {
+    color: #c53030;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.auth-error:empty {
+    display: none;
+}
+
+/* Discord's brand button */
+.auth-discord {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #5865F2;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
+}
+
+.auth-discord:hover {
+    background: #4752C4;
+}
+
+/* Signed-in bar at the bottom of the calculator */
+.tracking-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e5e5;
+    font-size: 0.8rem;
+    color: #4a5568;
+}
+
+.tracking-bar-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.tracking-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    vertical-align: middle;
+    object-fit: cover;
+}
+
+.tracking-bar a {
+    color: #B91227;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+body.premier-mode .tracking-bar {
+    border-top-color: var(--pm-border);
+    color: var(--pm-text-2);
+}
+
+body.premier-mode .tracking-bar-user {
+    color: var(--pm-text);
+}
+
+body.premier-mode .tracking-bar a {
+    color: var(--pm-purple-light);
+}
+
+.tracking-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translate(-50%, 20px);
+    max-width: calc(100% - 32px);
+    background: #1a1a1a;
+    color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 4000;
+}
+
+.tracking-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* ---- Admin leaderboard (admin.html) ---- */
+
+.admin-container {
+    max-width: 960px;
+}
+
+.admin-notice {
+    padding: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fafafa;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.admin-notice p {
+    margin-top: 8px;
+    color: #4a5568;
+}
+
+.admin-notice a {
+    color: #B91227;
+    font-weight: 600;
+}
+
+.admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.admin-periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    background: #f1f3f5;
+    border-radius: 10px;
+}
+
+.admin-period {
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+    cursor: pointer;
+}
+
+.admin-period.active {
+    background: #ffffff;
+    color: #1a1a1a;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-updated {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.admin-export {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.admin-stat {
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 14px;
+    background: #ffffff;
+}
+
+.admin-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.admin-stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-stat-sub {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 2px;
+}
+
+.admin-section-title {
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin: 8px 0 10px;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.admin-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    background: #fafafa;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.admin-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #1a1a1a;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-rank {
+    color: #666;
+    font-weight: 600;
+    width: 32px;
+}
+
+.admin-rep {
+    font-weight: 600;
+}
+
+.admin-rep .tracking-avatar {
+    margin-right: 8px;
+}
+
+.admin-when {
+    color: #4a5568;
+}
+
+.admin-empty {
+    text-align: center;
+    color: #666;
+    padding: 20px 12px !important;
+}
+
+.admin-delete {
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.admin-delete:hover {
+    color: #c53030;
+    background: #fff5f5;
+}
+
+@media (max-width: 480px) {
+    .admin-periods {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: 100%;
+    }
+
+    .admin-period {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+}

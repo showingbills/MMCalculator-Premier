@@ -1,0 +1,21 @@
+# Only needed if you deploy from the command line (npx wrangler deploy).
+# Deploying from the Cloudflare dashboard? Ignore this file and follow TRACKING_SETUP.md.
+name = "mm-sales"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+DISCORD_CLIENT_ID = ""
+DISCORD_GUILD_ID = ""
+ADMIN_ROLE_IDS = ""
+ADMIN_USER_IDS = ""
+REQUIRED_ROLE_IDS = ""
+ALLOWED_ORIGINS = ""
+# Secrets (never put these in this file):
+#   npx wrangler secret put DISCORD_CLIENT_SECRET
+#   npx wrangler secret put SESSION_SECRET
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mm-sales"
+database_id = "" # From: npx wrangler d1 create mm-sales

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Sales Leaderboard</title>
+    <link rel="icon" type="image/png" href="MM_Calculator_Icon-9.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="tracking.css">
+</head>
+<body class="admin-page">
+    <div class="container admin-container">
+        <div class="header">
+            <img src="logo.png" alt="Mosquito Mike Logo" class="header-logo">
+            <h1>Premier Sales Leaderboard</h1>
+            <p>Sales logged from the Premier Sold button</p>
+        </div>
+
+        <div id="adminApp" class="content">
+            <div id="adminNotice" class="admin-notice" style="display: none;"></div>
+
+            <div id="adminDashboard" style="display: none;">
+                <div class="admin-toolbar">
+                    <div class="admin-periods" role="group" aria-label="Time period">
+                        <button class="admin-period" data-period="today" onclick="setAdminPeriod('today')">Today</button>
+                        <button class="admin-period" data-period="week" onclick="setAdminPeriod('week')">This Week</button>
+                        <button class="admin-period" data-period="month" onclick="setAdminPeriod('month')">This Month</button>
+                        <button class="admin-period" data-period="all" onclick="setAdminPeriod('all')">All Time</button>
+                    </div>
+                    <div class="admin-actions">
+                        <span id="adminUpdated" class="admin-updated"></span>
+                        <button class="btn btn-secondary admin-export" onclick="loadAdminSales()">Refresh</button>
+                        <button class="btn btn-secondary admin-export" onclick="exportAdminCsv()">Export CSV</button>
+                    </div>
+                </div>
+
+                <div id="adminStats" class="admin-stats"></div>
+
+                <h2 class="admin-section-title">Leaderboard</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Rep</th>
+                                <th class="num">Sales</th>
+                                <th class="num">Premier+</th>
+                                <th class="num">Insect Only</th>
+                                <th class="num">Premier Only</th>
+                                <th class="num">New $/mo</th>
+                                <th class="num">Commission</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminLeaderboard"></tbody>
+                    </table>
+                </div>
+
+                <h2 class="admin-section-title">Sales Log</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>When</th>
+                                <th>Rep</th>
+                                <th class="num">Acres</th>
+                                <th class="num">Premier $/mo</th>
+                                <th>Add-on</th>
+                                <th class="num">Total $/mo</th>
+                                <th class="num">Commission</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminSales"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="tracking-config.js"></script>
+    <script src="tracking.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

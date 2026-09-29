@@ -184,6 +184,11 @@ function getPremierAddonPrice(addonKey) {
     return getPremierAddonConfig(addonKey)?.premier_price ?? ADDON_DATA[addonKey]?.monthlyPrice ?? 0;
 }
 
+// Rep's commission for a Premier sale — more when it includes an add-on
+function getPremierCommission(addonKey) {
+    return addonKey === 'none' ? PREMIER_CONFIG.sale_commission : PREMIER_CONFIG.addon_sale_commission;
+}
+
 function isPremierPlus(addonKey) {
     return Boolean(getPremierAddonConfig(addonKey)?.premier_plus);
 }
@@ -229,9 +234,8 @@ function backToPremierResults() {
 
 // Sold/Pitched buttons on page6 show a pop-up first, then open their page
 function sellPremier() {
-    const commission = premierAddon === 'none'
-        ? PREMIER_CONFIG.sale_commission
-        : PREMIER_CONFIG.addon_sale_commission;
+    const commission = getPremierCommission(premierAddon);
+    if (typeof trackPremierSold === 'function') trackPremierSold();
     showPremierAlertThen('sold', `
         <div class="premier-alert-icon">🎉</div>
         <div class="premier-alert-title">Premier Sold!</div>
@@ -241,6 +245,7 @@ function sellPremier() {
 }
 
 function pitchPremier() {
+    if (typeof trackPremierPitched === 'function') trackPremierPitched();
     showPremierAlertThen('pitched', `
         <div class="premier-alert-icon">💪</div>
         <div class="premier-alert-title">Not a dead lead!</div>
@@ -271,6 +276,7 @@ function resetPremier() {
 function clearPremierState() {
     premierState = null;
     premierAddon = 'none';
+    if (typeof forgetPremierSale === 'function') forgetPremierSale(); // Next Sold is a new sale
 
     const acreage = document.getElementById('premierAcreage');
     const rate = document.getElementById('premierRate');
@@ -629,6 +635,7 @@ function setPremierAddon(addonKey) {
     updatePremierCrmNote();
     updatePremierPitchedNote();
     refreshPremierEmailIfShown();
+    if (typeof trackPremierAddonChange === 'function') trackPremierAddonChange();
 }
 
 function updatePremierAddonTotal() {
