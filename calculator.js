@@ -391,7 +391,7 @@ function getTalkingPoints(packageKey, answers) {
                 'Biweekly service every 11\u201317 days (matches mosquito life cycle)',
                 '5 months of coverage',
                 'One upfront payment processed on first service date',
-                'Price is locked in \u2014 no surprise charges',
+                'Price guaranteed for the season \u2014 no surprise charges',
                 'Mosquito, tick, and flea protection included',
                 'Satisfaction Guarantee \u2014 free retreatments if pest activity occurs between visits',
                 'Free first treatment for new clients*'
@@ -405,7 +405,7 @@ function getTalkingPoints(packageKey, answers) {
                 'Biweekly service every 11\u201317 days (matches mosquito life cycle)',
                 '6 months of full season coverage',
                 'One upfront payment processed on first service date',
-                'Price is locked in \u2014 no surprise charges',
+                'Price guaranteed for the season \u2014 no surprise charges',
                 'Mosquito, tick, and flea protection included',
                 'Satisfaction Guarantee \u2014 free retreatments if pest activity occurs between visits',
                 'Free first treatment for new clients*'
@@ -419,7 +419,7 @@ function getTalkingPoints(packageKey, answers) {
                 'Biweekly service every 11\u201317 days (matches mosquito life cycle)',
                 '7 months of coverage \u2014 early spring through late fall',
                 'One upfront payment processed on first service date',
-                'Price is locked in \u2014 no surprise charges',
+                'Price guaranteed for the season \u2014 no surprise charges',
                 'Mosquito, tick, and flea protection included',
                 'Satisfaction Guarantee \u2014 free retreatments if pest activity occurs between visits',
                 'Free first treatment for new clients*'
@@ -891,7 +891,7 @@ const EMAIL_PLANS = [
         bullets: [
             'Biweekly service (every 11\u201317 days)',
             'One upfront payment \u2014 no surprise charges',
-            'Price locked in for the season',
+            'Price guaranteed for the season',
             'Covers mosquitoes, ticks, and fleas',
             'Satisfaction Guarantee included',
             'Payment processed on first service via card or ACH'

@@ -1736,8 +1736,8 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     border-bottom-color: rgba(74, 222, 128, 0.18);
 }
 
-/* Price lock callout — the headline benefit, so it gets the gold treatment */
-.premier-lock {
+/* Price guarantee callout — the headline benefit, so it gets the gold treatment */
+.premier-guarantee {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1749,20 +1749,20 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
 }
 
-.premier-lock-icon {
+.premier-guarantee-icon {
     font-size: 1.7rem;
     line-height: 1;
     flex-shrink: 0;
 }
 
-.premier-lock-title {
+.premier-guarantee-title {
     font-size: 1.02rem;
     font-weight: 800;
     color: #f7e08a;
     letter-spacing: -0.01em;
 }
 
-.premier-lock-sub {
+.premier-guarantee-sub {
     margin-top: 2px;
     font-size: 0.78rem;
     font-weight: 500;
