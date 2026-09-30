@@ -17,7 +17,7 @@ const PREMIER_KEY_POINTS = [
     { text: '<strong>Full-season protection</strong>, April through October (up to 14 applications)' },
     { text: '<strong>5% discount</strong> on each application' },
     { text: '<strong>Low monthly payments</strong> starting November 1st' },
-    { text: '<strong>Locked rate for two full years</strong> — no increases, no inflation worries', star: true },
+    { text: '<strong>Rate guaranteed through Nov 1st, 2028</strong> — no increases, no inflation worries', star: true },
     { text: '<strong>No contract or cancellation fee</strong>' }
 ];
 
@@ -28,30 +28,30 @@ function buildPremierPitch(s) {
         `It covers the full season, April through October, with up to ${PREMIER_CONFIG.applications_per_season} applications starting in 2027.`,
         `You get 5% off every application, so your rate drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)} per application</strong>.`,
         `Instead of paying at each visit or getting a big bill in the spring, the cost is split into ${PREMIER_CONFIG.payment_months} low monthly payments of <strong>${formatPremierMoney(s.monthly)} per month</strong>, starting ${PREMIER_CONFIG.billing_start}.`,
-        `Your rate is <strong>locked for two full years</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
+        `Your rate is <strong>guaranteed through Nov 1st, 2028</strong>, so you won’t see any increases. And there’s no contract or cancellation fee.`,
         `<strong>Would you like me to get you set up?</strong>`
     ];
 }
 
-// Value-building talk track, one entry per benefit. The price lock leads — it's the main value
+// Value-building talk track, one entry per benefit. The price guarantee leads — it's the main value
 // (star: true, same as the key point). Filled in with the client's numbers like the pitch.
 function buildPremierValuePoints(s) {
     const apps = PREMIER_CONFIG.applications_per_season;
     const exampleIncrease = 5; // $ per application, for the "what an increase costs you" example
     return [
         {
-            title: 'Locked rate for two full years',
+            title: 'Rate guaranteed through Nov 1st, 2028',
             star: true,
             paragraphs: [
                 `Nearly every year, the cost of providing service goes up. Labor costs more, the solution we apply costs more, and inflation touches everything else. That’s why most customers see their price go up from one year to the next.`,
-                `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is locked until Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
+                `With Premier, your rate of <strong>${formatPremierMoney(s.discounted)} per application is guaranteed through Nov 1st, 2028</strong>. That covers both the 2027 and 2028 seasons. No matter what happens with costs over the next two years, your price stays the same.`,
                 `Even a ${formatPremierMoney(exampleIncrease)} increase per application would add <strong>${formatPremierMoney(exampleIncrease * apps)} over a ${apps}-application season</strong>. Premier protects you from that for two full years.`
             ]
         },
         {
             title: '5% discount on each application',
             paragraphs: [
-                `On top of locking in your rate, we take 5% off it, so every application drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)}</strong>. That lower rate is the one we lock in, so you keep the discount for both seasons.`
+                `On top of guaranteeing your rate, we take 5% off it, so every application drops from ${formatPremierMoney(s.rate)} to <strong>${formatPremierMoney(s.discounted)}</strong>. That lower rate is the one we guarantee, so you keep the discount for both seasons.`
             ]
         },
         {
@@ -78,7 +78,7 @@ function buildPremierValuePoints(s) {
 const PREMIER_OBJECTIONS = [
     {
         q: 'I don’t like paying all year.',
-        a: 'I completely understand. The reason many customers love this plan is it spreads out the cost so you avoid a big spring bill or the need to pay at every application throughout the season, while also locking in lower per-application pricing for two years. And since there’s no cancellation fee, you stay in full control the entire time.'
+        a: 'I completely understand. The reason many customers love this plan is it spreads out the cost so you avoid a big spring bill or the need to pay at every application throughout the season, while also guaranteeing lower per-application pricing through Nov 1st, 2028. And since there’s no cancellation fee, you stay in full control the entire time.'
     },
     {
         q: 'What if I change my mind later?',
@@ -86,7 +86,7 @@ const PREMIER_OBJECTIONS = [
     },
     {
         q: 'Can’t I just stay on pay-as-you-go?',
-        a: 'You absolutely can — but pay-as-you-go customers don’t get the 5% savings or the 2-year price lock. The Premier Subscription is designed to give our loyal customers the same flexibility, while lowering the per-application cost and protecting against inflation. It’s really about better value for the exact same service.'
+        a: 'You absolutely can — but pay-as-you-go customers don’t get the 5% savings or the price guarantee through Nov 1st, 2028. The Premier Subscription is designed to give our loyal customers the same flexibility, while lowering the per-application cost and protecting against inflation. It’s really about better value for the exact same service.'
     },
     {
         q: 'What if I move / sell my house?',
@@ -427,11 +427,11 @@ function renderPremierResults() {
                     <div class="premier-pricing-sub">Starting ${PREMIER_CONFIG.billing_start} · covers the 2027 season onward</div>
                 </div>
             </div>
-            <div class="premier-lock">
-                <span class="premier-lock-icon">🔒</span>
+            <div class="premier-guarantee">
+                <span class="premier-guarantee-icon">🛡️</span>
                 <div>
-                    <div class="premier-lock-title">${PREMIER_CONFIG.price_lock_text}</div>
-                    <div class="premier-lock-sub">2 full years of protected pricing — no increases, no inflation worries</div>
+                    <div class="premier-guarantee-title">${PREMIER_CONFIG.price_guarantee_text}</div>
+                    <div class="premier-guarantee-sub">2 full years of protected pricing — no increases, no inflation worries</div>
                 </div>
             </div>
             <div class="premier-savings">
@@ -541,7 +541,7 @@ function getPremierPlusPitch(regular, price) {
 
     return {
         pitch: [
-            'Since you’re locking in Premier for the yard, I want to show you what makes <strong>Premier+</strong> our most complete protection — it takes that same coverage from the yard to the home itself.',
+            'Since you’re going with Premier for the yard, I want to show you what makes <strong>Premier+</strong> our most complete protection — it takes that same coverage from the yard to the home itself.',
             'Premier handles mosquitoes and ticks outside, April through October. Premier+ adds <strong>three foundation treatments a year</strong> — spring, summer, and fall — that keep ants, spiders, and 30+ other insects from getting inside, plus <strong>two rodent bait stations we check every quarter, all year long</strong>. So when mosquito season ends and it gets cold — right when mice start looking for a way in — you’re already covered.',
             'And you don’t have to wait for spring to start. <strong>We’ll get your first Insect + Rodent visit done this year</strong>, so your home is protected heading into the colder months — then your mosquito and tick protection kicks off as soon as the season opens back up in April.',
             'Each station works two ways: one bait takes care of active rodents, and a birth-control bait stops the smarter ones from reproducing. That’s how 2 mice never turn into 50. And if you’re seeing ants inside, we’ll leave you an interior ant bait that works hand-in-hand with the outside treatment.',
@@ -684,7 +684,7 @@ function withPremierExtraNotes(note, textareaId) {
 }
 
 function buildPremierCrmNote() {
-    return withPremierExtraNotes(`Signed on ${buildPremierOffer()} :: ${PREMIER_CONFIG.price_lock_text}`, 'premierCrmExtra');
+    return withPremierExtraNotes(`Signed on ${buildPremierOffer()} :: ${PREMIER_CONFIG.price_guarantee_text}`, 'premierCrmExtra');
 }
 
 function buildPremierPitchedNote() {
@@ -796,13 +796,13 @@ function generatePremierEmail() {
     const s = premierState;
     let html = '';
     html += `<p>Hi ${escapePremierHtml(clientName)},</p>`;
-    html += `<p>Thank you for your interest in our 2026 Premier Subscription Program! We’re excited to have you lock in one of our most popular and rewarding options for full-season protection heading into 2027.</p>`;
+    html += `<p>Thank you for your interest in our 2026 Premier Subscription Program! We’re excited to have you join one of our most popular and rewarding options for full-season protection heading into 2027.</p>`;
     html += `<p>Here’s a quick recap of what your Premier Subscription includes:</p>`;
     html += `<ul>`;
     html += `<li><strong>Full-Season Protection:</strong> Protected from April through October, starting with the 2027 season (up to 14 applications per season)</li>`;
     html += `<li><strong>Automatic 5% Discount:</strong> Savings applied to every visit, based on your current 2026 per-treatment rate</li>`;
     html += `<li><strong>Low Monthly Payments:</strong> Starting November 1st, 2026, spreading your cost evenly through the year</li>`;
-    html += `<li><strong>Two-Year Price Guarantee:</strong> Your rate is locked through Nov 1st, 2028 — no increases, no inflation worries</li>`;
+    html += `<li><strong>Two-Year Price Guarantee:</strong> Your rate is guaranteed through Nov 1st, 2028 — no increases, no inflation worries</li>`;
     html += `<li><strong>No Contract or Cancellation Fees:</strong> Full flexibility, full protection</li>`;
     html += `</ul>`;
     html += `<p><strong>Your Personalized Plan</strong><br>Here’s how your numbers break down based on your current 2026 rate:</p>`;
