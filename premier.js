@@ -491,6 +491,17 @@ function renderPremierResults() {
                     `).join('')}
                 </div>
             </div>
+            <div class="talking-points premier-summer">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">☀️ Summer Plan Client? Show Their Savings</h4>
+                <div class="tp-content collapsed">
+                    <div class="input-group">
+                        <label for="premierSummerPrice">2026 Summer Plan Price ($):</label>
+                        <p class="input-hint">Enter the total the client paid for their Summer Plan this year. It&rsquo;s divided by ${PREMIER_CONFIG.summer_plan_sprays} sprays to get their per-spray rate.</p>
+                        <input type="number" id="premierSummerPrice" step="0.01" min="0.01" placeholder="Summer Plan total (e.g., 594)" oninput="updatePremierSummerSavings()">
+                    </div>
+                    <div id="premierSummerResult"></div>
+                </div>
+            </div>
             <div class="talking-points">
                 <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Math Breakdown</h4>
                 <div class="tp-content collapsed">
@@ -523,6 +534,62 @@ function renderPremierResults() {
 
     renderPremierAddonOptions('premierAddonOptions', 'premier_addon');
     updatePremierAddonTotal();
+}
+
+// Summer Plan clients: their 2026 per-spray rate (plan price ÷ sprays) vs. the Premier per-treatment rate.
+// Integer cents, like calculatePremierPricing, so the per-spray split and difference come out exact.
+function calculatePremierSummerSavings(summerPrice) {
+    const sprays = PREMIER_CONFIG.summer_plan_sprays;
+    const perSprayCents = Math.round(summerPrice * 100 / sprays);
+    const discountedCents = Math.round(premierState.discounted * 100);
+    const savingsCents = perSprayCents - discountedCents;
+    return {
+        sprays,
+        perSpray: perSprayCents / 100,
+        savingsPerSpray: savingsCents / 100,
+        savingsPct: Math.round(savingsCents / perSprayCents * 100)
+    };
+}
+
+function updatePremierSummerSavings() {
+    const el = document.getElementById('premierSummerResult');
+    const summerPrice = parseFloat(document.getElementById('premierSummerPrice').value);
+    if (!premierState || !summerPrice || summerPrice <= 0) {
+        el.innerHTML = '';
+        return;
+    }
+
+    const s = premierState;
+    const sum = calculatePremierSummerSavings(summerPrice);
+    const saves = sum.savingsPerSpray > 0;
+
+    // Premier isn't cheaper per spray — say so plainly rather than show a negative "savings"
+    const talkTrack = saves
+        ? `This year your Summer Plan worked out to <strong>${formatPremierMoney(sum.perSpray)} per spray</strong>. With Premier, every treatment is just <strong>${formatPremierMoney(s.discounted)}</strong>, so you’re saving <strong>${formatPremierMoney(sum.savingsPerSpray)} on every spray</strong>, and you’re covered the full season, April through October, instead of just the summer.`
+        : `Premier’s per-treatment rate isn’t lower than this client’s Summer Plan per-spray rate. Lead with full-season coverage (up to ${PREMIER_CONFIG.applications_per_season} applications vs. ${sum.sprays}), low monthly payments, and the price guarantee instead.`;
+
+    el.innerHTML = `
+        <div class="premier-savings">
+            <div class="premier-savings-head">
+                <span class="premier-savings-title">☀️ Summer Plan vs. Premier</span>
+                ${saves ? `<span class="premier-savings-badge">Save ${formatPremierMoney(sum.savingsPerSpray)}/spray</span>` : ''}
+            </div>
+            <div class="premier-line">
+                <span>2026 Summer Plan (per spray)<small>${formatPremierMoney(summerPrice)} ÷ ${sum.sprays} sprays</small></span>
+                <span class="premier-line-amount${saves ? ' strike' : ''}">${formatPremierMoney(sum.perSpray)}</span>
+            </div>
+            <div class="premier-line">
+                <span>Premier Rate (per treatment)<small>${formatPremierMoney(s.rate)} bi-weekly rate, 5% off</small></span>
+                <span class="premier-line-amount${saves ? ' savings' : ''}">${formatPremierMoney(s.discounted)}</span>
+            </div>
+            ${saves ? `
+            <div class="premier-line">
+                <span><strong>Savings per spray</strong></span>
+                <span class="premier-line-amount savings">${formatPremierMoney(sum.savingsPerSpray)} (${sum.savingsPct}% less)</span>
+            </div>` : ''}
+        </div>
+        <div class="${saves ? 'premier-pitch' : 'premier-summer-warning'}"><p>${talkTrack}</p></div>
+    `;
 }
 
 // Regular add-on card, but with Premier's terms: add-ons bundled with Premier are no contract
