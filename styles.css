@@ -1810,6 +1810,26 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: #f7e08a;
 }
 
+/* Summer Plan savings dropdown — input sits inside the card, result reuses the savings box */
+.premier-summer .input-group {
+    margin: 10px 0 12px;
+}
+
+.premier-summer .premier-savings {
+    margin-top: 4px;
+}
+
+.premier-summer-warning p {
+    margin: 4px 0;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 10px;
+}
+
 /* Value building — same gold rule as the objection answers */
 .premier-value {
     margin-bottom: 14px;
