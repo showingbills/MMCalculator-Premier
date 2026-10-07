@@ -214,7 +214,9 @@ const PREMIER_CONFIG = {
     "price_guarantee_text": "Price guaranteed through Nov 1st, 2028",
     "sale_commission": 10, // $ the rep earns per Premier sale, shown in the Sold pop-up
     "addon_sale_commission": 15, // $ instead, when the sale includes Premier+ or Insect Only
-    "summer_plan_sprays": 6, // Sprays in a 2026 Summer Plan — the plan price ÷ this = their per-spray rate
+    // Triweekly prepaid savings: plans with more visits than this get the frequency + full-season pitch,
+    // this many or fewer get the summer-only pitch
+    "triweekly_summer_max_visits": 7,
     // Add-ons offered with Premier — regular monthly prices come from ADDON_DATA in calculator.js.
     // "premier_price" overrides that price inside the Premier flow only (regular calculator is unchanged).
     // "premier_plus": true brands the bundle as Premier+ (Premier + Insect & Rodent, approved $59 → $39/mo).
