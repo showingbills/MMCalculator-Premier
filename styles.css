@@ -1810,16 +1810,20 @@ body.premier-mode ::-webkit-scrollbar-thumb,
     color: #f7e08a;
 }
 
-/* Summer Plan savings dropdown — input sits inside the card, result reuses the savings box */
-.premier-summer .input-group {
+/* Triweekly prepaid savings dropdown — inputs sit inside the card, result reuses the savings box */
+.premier-triweekly .input-hint {
+    margin-top: 10px;
+}
+
+.premier-triweekly .input-group {
     margin: 10px 0 12px;
 }
 
-.premier-summer .premier-savings {
+.premier-triweekly .premier-savings {
     margin-top: 4px;
 }
 
-.premier-summer-warning p {
+.premier-triweekly-warning p {
     margin: 4px 0;
     padding: 10px 12px;
     font-size: 0.82rem;

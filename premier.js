@@ -491,15 +491,19 @@ function renderPremierResults() {
                     `).join('')}
                 </div>
             </div>
-            <div class="talking-points premier-summer">
-                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">☀️ Summer Plan Client? Show Their Savings</h4>
+            <div class="talking-points premier-triweekly">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">💵 Triweekly Prepaid Client Savings</h4>
                 <div class="tp-content collapsed">
+                    <p class="input-hint">For clients who prepaid a triweekly plan in 2026 (Summer, 9-visit, or custom). Their plan total is divided by the number of visits to get their per-visit rate.</p>
                     <div class="input-group">
-                        <label for="premierSummerPrice">2026 Summer Plan Price ($):</label>
-                        <p class="input-hint">Enter the total the client paid for their Summer Plan this year. It&rsquo;s divided by ${PREMIER_CONFIG.summer_plan_sprays} sprays to get their per-spray rate.</p>
-                        <input type="number" id="premierSummerPrice" step="0.01" min="0.01" placeholder="Summer Plan total (e.g., 594)" oninput="updatePremierSummerSavings()">
+                        <label for="premierTriweeklyTotal">2026 Plan Total ($):</label>
+                        <input type="number" id="premierTriweeklyTotal" step="0.01" min="0.01" placeholder="Total paid for the plan (e.g., 594)" oninput="updatePremierTriweeklySavings()">
                     </div>
-                    <div id="premierSummerResult"></div>
+                    <div class="input-group">
+                        <label for="premierTriweeklyVisits">Number of Visits:</label>
+                        <input type="number" id="premierTriweeklyVisits" step="1" min="1" placeholder="Visits in the plan (e.g., 6 or 9)" oninput="updatePremierTriweeklySavings()">
+                    </div>
+                    <div id="premierTriweeklyResult"></div>
                 </div>
             </div>
             <div class="talking-points">
@@ -536,47 +540,62 @@ function renderPremierResults() {
     updatePremierAddonTotal();
 }
 
-// Summer Plan clients: their 2026 per-spray rate (plan price ÷ sprays) vs. the Premier per-treatment rate.
-// Integer cents, like calculatePremierPricing, so the per-spray split and difference come out exact.
-function calculatePremierSummerSavings(summerPrice) {
-    const sprays = PREMIER_CONFIG.summer_plan_sprays;
-    const perSprayCents = Math.round(summerPrice * 100 / sprays);
+// Triweekly prepaid clients (Summer, 9-visit, or custom plans): their 2026 per-visit rate
+// (plan total ÷ visits) vs. the Premier per-treatment rate.
+// Integer cents, like calculatePremierPricing, so the per-visit split and difference come out exact.
+function calculatePremierTriweeklySavings(planTotal, visits) {
+    const perVisitCents = Math.round(planTotal * 100 / visits);
     const discountedCents = Math.round(premierState.discounted * 100);
-    const savingsCents = perSprayCents - discountedCents;
+    const savingsCents = perVisitCents - discountedCents;
     return {
-        sprays,
-        perSpray: perSprayCents / 100,
-        savingsPerSpray: savingsCents / 100,
-        savingsPct: Math.round(savingsCents / perSprayCents * 100)
+        perVisit: perVisitCents / 100,
+        savingsPerVisit: savingsCents / 100,
+        savingsPct: Math.round(savingsCents / perVisitCents * 100)
     };
 }
 
-function updatePremierSummerSavings() {
-    const el = document.getElementById('premierSummerResult');
-    const summerPrice = parseFloat(document.getElementById('premierSummerPrice').value);
-    if (!premierState || !summerPrice || summerPrice <= 0) {
+// Talk track by plan size: summer-length plans get the "full season instead of just the summer" angle;
+// longer plans already cover most of the season, so lead with bi-weekly frequency + full-season coverage.
+// No savings → a note to the rep instead of a negative "savings" line.
+function buildPremierTriweeklyTalkTrack(t, visits, saves) {
+    const s = premierState;
+    const apps = PREMIER_CONFIG.applications_per_season;
+    const summerPlan = visits <= PREMIER_CONFIG.triweekly_summer_max_visits;
+
+    if (!saves) {
+        return summerPlan
+            ? `Premier’s per-treatment rate isn’t lower than this client’s ${visits}-visit plan. Lead with full-season coverage (up to ${apps} applications vs. ${visits}, April through October instead of just the summer), low monthly payments, and the price guarantee instead.`
+            : `Premier’s per-treatment rate isn’t lower than this client’s ${visits}-visit plan. Lead with more frequent treatments (every two weeks instead of every three), full-season coverage (up to ${apps} applications vs. ${visits}), low monthly payments, and the price guarantee instead.`;
+    }
+
+    const savingsLine = `This year your plan worked out to <strong>${formatPremierMoney(t.perVisit)} per visit</strong>. With Premier, every treatment is just <strong>${formatPremierMoney(s.discounted)}</strong>, so you’re saving <strong>${formatPremierMoney(t.savingsPerVisit)} on every visit</strong>`;
+    return summerPlan
+        ? `${savingsLine}, and you’re covered the full season, April through October, instead of just the summer.`
+        : `${savingsLine}. And instead of a treatment every three weeks, you’re treated <strong>every two weeks</strong>, with up to ${apps} applications April through October, so there are no gaps in protection between visits all season long.`;
+}
+
+function updatePremierTriweeklySavings() {
+    const el = document.getElementById('premierTriweeklyResult');
+    const planTotal = parseFloat(document.getElementById('premierTriweeklyTotal').value);
+    const visits = parseInt(document.getElementById('premierTriweeklyVisits').value, 10);
+    if (!premierState || !planTotal || planTotal <= 0 || !visits || visits <= 0) {
         el.innerHTML = '';
         return;
     }
 
     const s = premierState;
-    const sum = calculatePremierSummerSavings(summerPrice);
-    const saves = sum.savingsPerSpray > 0;
-
-    // Premier isn't cheaper per spray — say so plainly rather than show a negative "savings"
-    const talkTrack = saves
-        ? `This year your Summer Plan worked out to <strong>${formatPremierMoney(sum.perSpray)} per spray</strong>. With Premier, every treatment is just <strong>${formatPremierMoney(s.discounted)}</strong>, so you’re saving <strong>${formatPremierMoney(sum.savingsPerSpray)} on every spray</strong>, and you’re covered the full season, April through October, instead of just the summer.`
-        : `Premier’s per-treatment rate isn’t lower than this client’s Summer Plan per-spray rate. Lead with full-season coverage (up to ${PREMIER_CONFIG.applications_per_season} applications vs. ${sum.sprays}), low monthly payments, and the price guarantee instead.`;
+    const t = calculatePremierTriweeklySavings(planTotal, visits);
+    const saves = t.savingsPerVisit > 0;
 
     el.innerHTML = `
         <div class="premier-savings">
             <div class="premier-savings-head">
-                <span class="premier-savings-title">☀️ Summer Plan vs. Premier</span>
-                ${saves ? `<span class="premier-savings-badge">Save ${formatPremierMoney(sum.savingsPerSpray)}/spray</span>` : ''}
+                <span class="premier-savings-title">💵 Triweekly Plan vs. Premier</span>
+                ${saves ? `<span class="premier-savings-badge">Save ${formatPremierMoney(t.savingsPerVisit)}/visit</span>` : ''}
             </div>
             <div class="premier-line">
-                <span>2026 Summer Plan (per spray)<small>${formatPremierMoney(summerPrice)} ÷ ${sum.sprays} sprays</small></span>
-                <span class="premier-line-amount${saves ? ' strike' : ''}">${formatPremierMoney(sum.perSpray)}</span>
+                <span>2026 Triweekly Plan (per visit)<small>${formatPremierMoney(planTotal)} ÷ ${visits} visits</small></span>
+                <span class="premier-line-amount${saves ? ' strike' : ''}">${formatPremierMoney(t.perVisit)}</span>
             </div>
             <div class="premier-line">
                 <span>Premier Rate (per treatment)<small>${formatPremierMoney(s.rate)} bi-weekly rate, 5% off</small></span>
@@ -584,11 +603,11 @@ function updatePremierSummerSavings() {
             </div>
             ${saves ? `
             <div class="premier-line">
-                <span><strong>Savings per spray</strong></span>
-                <span class="premier-line-amount savings">${formatPremierMoney(sum.savingsPerSpray)} (${sum.savingsPct}% less)</span>
+                <span><strong>Savings per visit</strong></span>
+                <span class="premier-line-amount savings">${formatPremierMoney(t.savingsPerVisit)} (${t.savingsPct}% less)</span>
             </div>` : ''}
         </div>
-        <div class="${saves ? 'premier-pitch' : 'premier-summer-warning'}"><p>${talkTrack}</p></div>
+        <div class="${saves ? 'premier-pitch' : 'premier-triweekly-warning'}"><p>${buildPremierTriweeklyTalkTrack(t, visits, saves)}</p></div>
     `;
 }
 
